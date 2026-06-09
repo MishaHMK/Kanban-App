@@ -1,0 +1,73 @@
+<div class="auth-page">
+  <div class="auth-card">
+
+    <div class="auth-header">
+      <div class="auth-logo">
+        <span nz-icon nzType="layout" nzTheme="outline"></span>
+      </div>
+      <h2>Create an account</h2>
+      <p>Start organizing your work with Kanban</p>
+    </div>
+
+    <form nz-form [formGroup]="form" nzLayout="vertical" (ngSubmit)="submit()">
+
+      <nz-form-item>
+        <nz-form-label>Email</nz-form-label>
+        <nz-form-control nzErrorTip="Please enter a valid email">
+          <nz-input-group nzPrefixIcon="mail">
+            <input nz-input formControlName="email" placeholder="you@example.com" type="email" />
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Nickname</nz-form-label>
+        <nz-form-control nzErrorTip="Nickname must be 2–32 characters">
+          <nz-input-group nzPrefixIcon="user">
+            <input nz-input formControlName="nickname" placeholder="Your display name" />
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Password</nz-form-label>
+        <nz-form-control nzErrorTip="Password must be 8–64 characters">
+          <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+            <input nz-input formControlName="password"
+              [type]="passwordVisible ? 'text' : 'password'"
+              placeholder="••••••••" />
+          </nz-input-group>
+          <ng-template #suffixTemplate>
+            <span nz-icon
+              [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+              (click)="passwordVisible = !passwordVisible"
+              style="cursor: pointer">
+            </span>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Confirm password</nz-form-label>
+          <nz-form-control nzErrorTip="Passwords do not match">
+           <nz-input-group nzPrefixIcon="lock">
+              <input nz-input formControlName="repeatPassword"
+                [type]="passwordVisible ? 'text' : 'password'"
+              placeholder="••••••••" />
+            </nz-input-group>
+         </nz-form-control>
+      </nz-form-item>
+
+      <button nz-button nzType="primary" nzBlock [nzLoading]="loading" type="submit">
+        Create account
+      </button>
+
+    </form>
+
+    <p class="auth-footer">
+      Already have an account?
+      <a routerLink="/login">Sign in</a>
+    </p>
+
+  </div>
+</div>

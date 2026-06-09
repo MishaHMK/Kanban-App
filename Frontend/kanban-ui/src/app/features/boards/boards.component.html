@@ -1,0 +1,98 @@
+<div class="boards-page">
+
+  <div class="boards-header">
+    <h1>My Boards</h1>
+    <button nz-button nzType="primary" (click)="openModal()">
+      <span nz-icon nzType="plus"></span>
+      New board
+    </button>
+  </div>
+
+  <nz-spin [nzSpinning]="loading()">
+
+    <nz-empty *ngIf="!loading() && boards().length === 0"
+      nzNotFoundContent="No boards yet. You can create some">
+    </nz-empty>
+
+    <div class="boards-grid">
+      @for (board of boards(); track board.id) {
+        <nz-card
+          class="board-card"
+          [nzHoverable]="true"
+          (click)="openBoard(board.id)">
+
+          <div class="board-card-body">
+            <div class="board-card-title">{{ board.name }}</div>
+            <div class="board-card-meta">
+              @if (isOwner(board)) {
+                <nz-tag nzColor="blue">Owner</nz-tag>
+              } @else {
+                <nz-tag nzColor="purple">Collaborator</nz-tag>
+              }
+              <span class="board-card-columns">
+                <span nz-icon nzType="layout"></span>
+                {{ board.columns.length }} columns
+              </span>
+            </div>
+          </div>
+
+          @if (isOwner(board)) {
+            <div class="board-card-actions">
+              <button nz-button nzType="text" nzSize="small"
+                class="board-action-btn"
+                nz-tooltip nzTooltipTitle="Rename"
+                (click)="openEditBoard($event, board)">
+                <span nz-icon nzType="edit"></span>
+              </button>
+              <button nz-button nzType="text" nzSize="small" nzDanger
+                class="board-action-btn"
+                nz-popconfirm
+                nzPopconfirmTitle="Delete this board?"
+                (nzOnConfirm)="deleteBoard(board.id)"
+                (click)="$event.stopPropagation()">
+                <span nz-icon nzType="delete"></span>
+              </button>
+            </div>
+          }
+        </nz-card>
+      }
+    </div>
+
+  </nz-spin>
+</div>
+
+<nz-modal
+  [(nzVisible)]="modalVisible"
+  nzTitle="Create new board"
+  [nzOkLoading]="modalLoading"
+  (nzOnOk)="createBoard()"
+  (nzOnCancel)="closeModal()">
+
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="form" nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-label>Board name</nz-form-label>
+        <nz-form-control nzErrorTip="Name must be 2–50 characters">
+          <input nz-input formControlName="name" placeholder="e.g. Sprint 1" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>
+
+<nz-modal
+      [nzVisible]="!!editingBoard"
+      nzTitle="Rename board"
+      (nzOnOk)="saveEditBoard()"
+      (nzOnCancel)="closeEditBoard()">
+      <ng-container *nzModalContent>
+        <form nz-form [formGroup]="editBoardForm" nzLayout="vertical">
+          <nz-form-item>
+            <nz-form-label>Board name</nz-form-label>
+            <nz-form-control nzErrorTip="Required">
+              <input nz-input formControlName="name" />
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </ng-container>
+</nz-modal>

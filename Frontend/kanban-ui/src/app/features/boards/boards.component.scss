@@ -1,0 +1,83 @@
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100%;
+}
+
+.boards-page {
+  padding: 40px 48px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.boards-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+  }
+}
+
+.inline-edit {
+  border: none;
+  border-bottom: 2px solid #1677ff;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  width: 100%;
+  padding: 0;
+  color: #262626;
+}
+
+.board-card {
+  cursor: pointer;
+  position: relative;
+  border-radius: 12px;
+  transition: box-shadow 0.2s;
+
+  .board-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .board-card-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #262626;
+  }
+
+  .board-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8c8c8c;
+    font-size: 13px;
+  }
+
+  .board-card-columns {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.board-card-actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.board-card:hover .board-card-actions {
+  opacity: 1;
+}

@@ -1,0 +1,32 @@
+server:
+  port: 8082
+
+spring:
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://localhost:3306/board_service_db
+    username: root
+    password: MichHMKSql
+
+flyway:
+  enabled: true
+  baseline-on-migrate: true
+
+jpa:
+  database-platform: org.hibernate.dialect.MySQL8Dialect
+  show-sql: true
+  hibernate:
+    ddl-auto: validate
+
+jwt:
+  secret: aB3dE6fG1H2jK4L8mN5pQ7rS9tU0vW3xY6zA2bC5dE8fG1hJ4kL7mN0pQ3rS6t37U9vW2xY5zA8bC1dE4fG7hJ
+  expiration: 7d
+
+board:
+ columns-limit: 5
+ tasks-limit: 10

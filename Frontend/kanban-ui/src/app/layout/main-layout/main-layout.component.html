@@ -1,0 +1,21 @@
+<nz-layout class="app-layout">
+  <nz-header class="app-header">
+    <div class="header-left">
+      <span class="logo">
+        <span nz-icon nzType="layout" style="font-size: 20px; color: #1677ff"></span>
+        Kanban
+      </span>
+    </div>
+    <div class="header-right">
+      <span class="username">{{ auth.currentUser()?.nickname }}</span>
+      <button nz-button nzType="text" (click)="auth.logout()">
+        <span nz-icon nzType="logout"></span>
+        Logout
+      </button>
+    </div>
+  </nz-header>
+
+  <nz-content class="app-content">
+    <router-outlet />
+  </nz-content>
+</nz-layout>

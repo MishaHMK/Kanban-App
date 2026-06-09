@@ -1,0 +1,80 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.auth-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  h2 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+    color: #8c8c8c;
+    font-size: 14px;
+  }
+}
+
+.auth-logo {
+  width: 52px;
+  height: 52px;
+  background: #1677ff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+
+  span {
+    font-size: 26px;
+    color: white;
+  }
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 20px;
+  color: #8c8c8c;
+  font-size: 14px;
+
+  a {
+    color: #1677ff;
+  }
+}
+
+button[nz-button] {
+  margin-top: 8px;
+  height: 40px;
+}
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.auth-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
