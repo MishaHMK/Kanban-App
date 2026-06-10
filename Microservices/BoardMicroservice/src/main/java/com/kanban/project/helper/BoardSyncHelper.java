@@ -32,15 +32,4 @@ public class BoardSyncHelper {
 
         notificationClient.shareFullBoardUpdate(boardId, boardMapper.toDto(board));
     }
-
-    @Transactional(readOnly = true)
-    public void boardRemoval(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardServiceException(ExceptionMessage.NOT_FOUND));
-
-        List<KanbanColumn> columns = columnRepository.findColumnsWithTasks(boardId);
-        board.setColumns(columns);
-
-        notificationClient.shareFullBoardUpdate(boardId, boardMapper.toDto(board));
-    }
 }

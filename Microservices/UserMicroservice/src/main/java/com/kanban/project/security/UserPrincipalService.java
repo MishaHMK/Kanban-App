@@ -5,7 +5,6 @@ import com.kanban.project.entity.User;
 import com.kanban.project.errors.ExceptionMessage;
 import com.kanban.project.errors.UserNotFoundException;
 import com.kanban.project.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetails;
