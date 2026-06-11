@@ -3,7 +3,7 @@ No real email confirmation, just format validation, so write anything with @gmai
 
 ## **How to run the project**
 1. Clone the repository. Have Docker Desktop running
-2. Proceed to `/Microservices` and write your MySQL local creds info
+2. Proceed to `/Microservices` and write your MySQL local creds
 3. Open terminal in `/Microservices` and call `docker-compose up --build`
 4. Open terminal in `/Frontend/kanban-ui` and call `ng serve` 
 
