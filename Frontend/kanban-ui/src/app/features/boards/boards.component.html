@@ -10,9 +10,9 @@
 
   <nz-spin [nzSpinning]="loading()">
 
-    <nz-empty *ngIf="!loading() && boards().length === 0"
-      nzNotFoundContent="No boards yet. You can create some">
-    </nz-empty>
+    @if (!loading() && boards().length === 0) {
+      <nz-empty nzNotFoundContent="No boards yet"></nz-empty>
+    }
 
     <div class="boards-grid">
       @for (board of boards(); track board.id) {

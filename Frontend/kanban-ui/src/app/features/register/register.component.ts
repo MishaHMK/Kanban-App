@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -7,7 +7,6 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from '../../core/services/auth.service';
-import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-register',

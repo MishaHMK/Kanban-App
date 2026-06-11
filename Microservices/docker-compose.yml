@@ -1,0 +1,96 @@
+x-mysql-credentials: &mysql-credentials
+  MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+
+x-spring-db-credentials: &spring-db-credentials
+  SPRING_DATASOURCE_USERNAME: ${DB_USER}
+  SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
+x-jwt: &jwt
+  JWT_SECRET: ${JWT_SECRET}
+
+services:
+  user-db:
+    image: mysql:8.0
+    container_name: kanban-user-db
+    environment:
+      <<: *mysql-credentials
+      MYSQL_DATABASE: user_service_db
+    volumes:
+      - user-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  board-db:
+    image: mysql:8.0
+    container_name: kanban-board-db
+    environment:
+      <<: *mysql-credentials
+      MYSQL_DATABASE: board_service_db
+    volumes:
+      - board-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build:
+      context: ./UserMicroservice
+    container_name: kanban-user-service
+    ports:
+      - "8081:8081"
+    environment:
+      <<: [*spring-db-credentials, *jwt]
+      SPRING_DATASOURCE_URL: jdbc:mysql://user-db:3306/user_service_db
+    depends_on:
+      user-db:
+        condition: service_healthy
+
+  board-service:
+    build:
+      context: ./BoardMicroservice
+    container_name: kanban-board-service
+    ports:
+      - "8082:8082"
+    environment:
+      <<: *spring-db-credentials
+      SPRING_DATASOURCE_URL: jdbc:mysql://board-db:3306/board_service_db
+      NOTIFICATION_SERVICE_URL: http://notification-service:8083
+    depends_on:
+      board-db:
+        condition: service_healthy
+      notification-service:
+        condition: service_started
+
+  notification-service:
+    build:
+      context: ./NotificationCenter
+    container_name: kanban-notification-service
+    ports:
+      - "8083:8083"
+    environment:
+      <<: *jwt
+
+  gateway:
+    build:
+      context: ./Gateway
+    container_name: kanban-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      <<: *jwt
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
+      BOARD_SERVICE_URL: ${BOARD_SERVICE_URL}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL}
+    depends_on:
+      - user-service
+      - board-service
+      - notification-service
+
+volumes:
+  user-db-data:
+  board-db-data:

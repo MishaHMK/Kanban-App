@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -31,7 +31,8 @@ export class LoginComponent {
     private formBuilder: FormBuilder,
     private auth: AuthService,
     private router: Router,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = this.formBuilder.group({
       email:    ['', [Validators.required, Validators.email]],
@@ -54,6 +55,7 @@ export class LoginComponent {
       error: (err) => {
         this.message.error(err.error?.message ?? 'Login failed');
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
