@@ -10,8 +10,8 @@ No real email confirmation, just format validation, so write anything with @gmai
 ## **Main flow**
 1. Register 2 users
 2. Login as 1 of users 
-3. Try Create boards / columns / tasks. Try edit, move, delete.
-4. Add collaborator (other user) in specific board.
-5. Open browser in `New incognito window` login as other user.
-6. This user should see a board as collaborator.
+3. Try create boards / columns / tasks. Try edit, move, delete tasks in columns
+4. Add collaborator (other user) (button iside board above columns) 
+5. Open browser in `New incognito window` login as other this user
+6. This user should see a board as collaborator. Try remove / readd them (reload page)
 7. Try to add new tasks, make edits, move and delete. See how both user have board data auto-update via websokcets
