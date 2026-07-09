@@ -7,6 +7,9 @@ x-spring-db-credentials: &spring-db-credentials
 
 x-jwt: &jwt
   JWT_SECRET: ${JWT_SECRET}
+  
+x-internal: &internal
+  INTERNAL_SECRET: ${INTERNAL_SECRET}
 
 services:
   user-db:

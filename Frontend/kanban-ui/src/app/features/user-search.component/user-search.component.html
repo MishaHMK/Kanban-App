@@ -1,0 +1,34 @@
+<nz-input-group [nzPrefix]="searchIcon" [nzSuffix]="searchSpin">
+  <input
+    nz-input
+    placeholder="Search by email..."
+    (input)="onSearchInput($any($event.target).value)"
+  />
+</nz-input-group>
+<ng-template #searchIcon>
+  <span nz-icon nzType="search"></span>
+</ng-template>
+<ng-template #searchSpin>
+  @if (searchLoading) {
+    <span nz-icon nzType="loading"></span>
+  }
+</ng-template>
+
+@if (searchResults.length > 0) {
+  <div class="search-results">
+    @for (user of searchResults; track user.id) {
+      <div class="search-result-item">
+        <app-avatar [nickname]="user.nickname" />
+        <div class="user-info">
+          <span class="user-email">{{ user.email }}</span>
+          <span class="user-nickname">{{ user.nickname }}</span>
+        </div>
+        @if (isSelected(user.id)) {
+          <nz-tag nzColor="green">Added</nz-tag>
+        } @else {
+          <button nz-button nzType="primary" nzSize="small" (click)="select(user)">Add</button>
+        }
+      </div>
+    }
+  </div>
+}

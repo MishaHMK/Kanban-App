@@ -1,0 +1,56 @@
+<div nz-dropdown [nzDropdownMenu]="menu" nzTrigger="click" class="assignee-trigger">
+  @if (selectedUser) {
+    <app-avatar
+      [nickname]="selectedUser.nickname"
+      [size]="28"
+      [variant]="isCurrentUser(selectedUser.id) ? 'you' : 'default'"
+    />
+    <span class="assignee-name">
+      {{ selectedUser.nickname }}
+      @if (isCurrentUser(selectedUser.id)) {
+        <span class="you-tag">YOU</span>
+      }
+    </span>
+  } @else {
+    <span class="assignee-placeholder">
+      <span nz-icon nzType="user-add"></span>
+      Assign to...
+    </span>
+  }
+  <span nz-icon nzType="down" class="dropdown-arrow"></span>
+</div>
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu class="assignee-menu">
+    @if (selectedId()) {
+      <li nz-menu-item (click)="clear()">
+        <span nz-icon nzType="close-circle"></span>
+        Unassign
+      </li>
+      <li nz-menu-divider></li>
+    }
+    @for (member of members(); track member.id) {
+      <li
+        nz-menu-item
+        class="member-item"
+        [class.member-item-you]="isCurrentUser(member.id)"
+        (click)="select(member)"
+      >
+        <app-avatar
+          [nickname]="member.nickname"
+          [size]="24"
+          [variant]="isCurrentUser(member.id) ? 'you' : 'default'"
+        />
+        <div class="member-info">
+          <span class="member-nickname">
+            {{ member.nickname }}
+            @if (isCurrentUser(member.id)) {
+              <span class="you-tag">YOU</span>
+            }
+          </span>
+          <span class="member-email">{{ member.email }}</span>
+        </div>
+      </li>
+    }
+  </ul>
+</nz-dropdown-menu>

@@ -2,6 +2,7 @@ package com.kanban.project.filter;
 
 import com.kanban.project.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -18,9 +19,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationFilter implements GlobalFilter {
+    @Value("${internal.secret}")
+    private String internalSecret;
+
     private static final List<String> PUBLIC_PATHS = List.of("/auth", "/ws-endpoint");
     private static final String BEARER_HEADER = "Bearer ";
     private static final String USER_ID_HEADER = "X-User-Id";
+    private static final String INTERNAL_SECRET_HEADER = "X-Internal-Secret";
 
     private final JwtUtil jwtUtil;
 
@@ -51,8 +56,9 @@ public class AuthenticationFilter implements GlobalFilter {
         String userId = jwtUtil.extractAllClaims(token).getSubject();
 
         ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
-               .header(USER_ID_HEADER, userId)
-               .build();
+                .header(USER_ID_HEADER, userId)
+                .header(INTERNAL_SECRET_HEADER, internalSecret)
+                .build();
 
         return chain.filter(exchange.mutate().request(modifiedRequest).build());
     }

@@ -26,7 +26,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/list")
+    @GetMapping()
     public ResponseEntity<List<UserDto>> getUsersByIds(@RequestParam List<Long> ids) {
         return ResponseEntity.ok(userService.getUsersByIds(ids));
     }

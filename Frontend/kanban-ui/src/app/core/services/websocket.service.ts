@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { Client, IMessage } from '@stomp/stompjs';
 import { Subject } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -7,12 +7,12 @@ import { Board } from '../models/board.model';
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService implements OnDestroy {
+  private auth = inject(AuthService);
+
   private client: Client | null = null;
   private boardUpdate$ = new Subject<Board>();
 
   boardUpdates$ = this.boardUpdate$.asObservable();
-
-  constructor(private auth: AuthService) {}
 
   connect(boardId: number) {
     this.client = new Client({

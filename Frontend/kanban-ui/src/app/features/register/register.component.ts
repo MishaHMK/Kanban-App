@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -23,23 +23,26 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
+  private fb = inject(FormBuilder);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  private message = inject(NzMessageService);
+  private cdr = inject(ChangeDetectorRef);
+
   form: FormGroup;
   loading = false;
   passwordVisible = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private auth: AuthService,
-    private router: Router,
-    private message: NzMessageService,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.form = this.fb.group({
-      email:    ['', [Validators.required, Validators.email]],
-      nickname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(25)]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(25)]],
-      repeatPassword: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
+  constructor() {
+    this.form = this.fb.group(
+      {
+        email: ['', [Validators.required, Validators.email]],
+        nickname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(25)]],
+        password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(25)]],
+        repeatPassword: ['', [Validators.required]]
+      },
+      { validators: this.passwordMatchValidator }
+    );
   }
 
   submit() {
@@ -57,7 +60,7 @@ export class RegisterComponent {
         this.message.success('Account created! Please sign in.');
         this.router.navigate(['/login']);
       },
-      error: (err) => {
+      error: err => {
         this.message.error(err.error?.message ?? 'Registration failed');
         this.loading = false;
         this.cdr.detectChanges();

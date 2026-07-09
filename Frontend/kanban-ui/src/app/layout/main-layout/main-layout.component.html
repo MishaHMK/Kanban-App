@@ -2,7 +2,7 @@
   <nz-header class="app-header">
     <div class="header-left">
       <span class="logo">
-        <span nz-icon nzType="layout" style="font-size: 20px; color: #1677ff"></span>
+        <span nz-icon nzType="layout" class="logo-icon"></span>
         Kanban
       </span>
     </div>
@@ -18,4 +18,8 @@
   <nz-content class="app-content">
     <router-outlet />
   </nz-content>
+
+  <nz-footer class="app-footer">
+    <span>Kanban © {{ currentYear }} — Built with Angular & Spring Boot</span>
+  </nz-footer>
 </nz-layout>

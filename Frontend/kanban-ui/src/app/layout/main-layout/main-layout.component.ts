@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -13,5 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './main-layout.component.scss'
 })
 export class MainLayoutComponent {
-  constructor(public auth: AuthService) {}
+  auth = inject(AuthService);
+
+  currentYear = new Date().getFullYear();
 }

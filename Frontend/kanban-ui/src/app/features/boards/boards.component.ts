@@ -1,6 +1,12 @@
-import { Component, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, signal, ViewChild, ElementRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzModalModule } from 'ng-zorro-antd/modal';
@@ -16,12 +22,11 @@ import { BoardService } from '../../core/services/board.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Board } from '../../core/models/board.model';
 
-
 @Component({
   selector: 'app-boards',
   standalone: true,
   imports: [
-    FormsModule,  
+    FormsModule,
     ReactiveFormsModule,
     NzCardModule,
     NzButtonModule,
@@ -38,6 +43,12 @@ import { Board } from '../../core/models/board.model';
   styleUrl: './boards.component.scss'
 })
 export class BoardsComponent implements OnInit {
+  private boardService = inject(BoardService);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  private formBuilder = inject(FormBuilder);
+  private message = inject(NzMessageService);
+
   boards = signal<Board[]>([]);
   loading = signal(true);
   modalVisible = false;
@@ -50,19 +61,13 @@ export class BoardsComponent implements OnInit {
 
   @ViewChild('renameInput') renameInput?: ElementRef;
 
-  constructor(
-    private boardService: BoardService,
-    private auth: AuthService,
-    private router: Router,
-    private formBuilder: FormBuilder,
-    private message: NzMessageService
-  ) {
+  constructor() {
     this.currentUserId = this.auth.currentUser()!.id;
     this.form = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]]
     });
-    this.editBoardForm = this.formBuilder.group({ 
-      name: ['', [Validators.required]] 
+    this.editBoardForm = this.formBuilder.group({
+      name: ['', [Validators.required]]
     });
   }
 
@@ -73,7 +78,7 @@ export class BoardsComponent implements OnInit {
   loadBoards() {
     this.loading.set(true);
     this.boardService.getAll().subscribe({
-      next: (boards) => {
+      next: boards => {
         this.boards.set(boards);
         this.loading.set(false);
       },
@@ -101,7 +106,7 @@ export class BoardsComponent implements OnInit {
     if (this.form.invalid) return;
     this.modalLoading = true;
     this.boardService.create(this.form.value.name).subscribe({
-      next: (board) => {
+      next: board => {
         this.boards.update(newBoard => [...newBoard, board]);
         this.message.success('Board created!');
         this.modalLoading = false;
@@ -122,13 +127,13 @@ export class BoardsComponent implements OnInit {
       },
       error: () => this.message.error('Failed to delete board')
     });
-    }
+  }
 
-    isOwner(board: Board): boolean {
-      return board.ownerId === this.currentUserId;
-    }
+  isOwner(board: Board): boolean {
+    return board.ownerId === this.currentUserId;
+  }
 
-    openEditBoard(event: MouseEvent, board: Board) {
+  openEditBoard(event: MouseEvent, board: Board) {
     event.stopPropagation();
     this.editingBoard = board;
     this.editBoardForm.patchValue({ name: board.name });
@@ -141,9 +146,10 @@ export class BoardsComponent implements OnInit {
   saveEditBoard() {
     if (this.editBoardForm.invalid || !this.editingBoard) return;
     this.boardService.rename(this.editingBoard.id, this.editBoardForm.value.name).subscribe({
-      next: (updated) => {
-        this.boards.update(currentBoards => currentBoards
-          .map(original => original.id === updated.id ? updated : original));
+      next: updated => {
+        this.boards.update(currentBoards =>
+          currentBoards.map(original => (original.id === updated.id ? updated : original))
+        );
         this.message.success('Board renamed');
         this.closeEditBoard();
       },

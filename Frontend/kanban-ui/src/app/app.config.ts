@@ -16,5 +16,5 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimations(),
     provideNzI18n(en_US)
-  ],
+  ]
 };

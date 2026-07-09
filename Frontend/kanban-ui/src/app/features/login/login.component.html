@@ -1,6 +1,5 @@
 <div class="auth-page">
   <div class="auth-card">
-
     <div class="auth-header">
       <div class="auth-logo">
         <span nz-icon nzType="layout" nzTheme="outline"></span>
@@ -10,7 +9,6 @@
     </div>
 
     <form nz-form [formGroup]="form" nzLayout="vertical" (ngSubmit)="submit()">
-
       <nz-form-item>
         <nz-form-label>Email</nz-form-label>
         <nz-form-control nzErrorTip="Please enter a valid email">
@@ -24,30 +22,40 @@
         <nz-form-label>Password</nz-form-label>
         <nz-form-control nzErrorTip="Password must be at least 8 characters">
           <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
-            <input nz-input formControlName="password"
+            <input
+              nz-input
+              formControlName="password"
               [type]="passwordVisible ? 'text' : 'password'"
-              placeholder="••••••••" />
+              placeholder="••••••••"
+            />
           </nz-input-group>
           <ng-template #suffixTemplate>
-            <span nz-icon
+            <span
+              nz-icon
+              class="password-toggle-icon"
               [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
               (click)="passwordVisible = !passwordVisible"
-              style="cursor: pointer">
+            >
             </span>
           </ng-template>
         </nz-form-control>
       </nz-form-item>
 
-      <button nz-button nzType="primary" nzBlock [nzLoading]="loading" type="submit">
+      <button
+        nz-button
+        nzType="primary"
+        nzBlock
+        class="auth-submit-btn"
+        [nzLoading]="loading"
+        type="submit"
+      >
         Sign in
       </button>
-
     </form>
 
     <p class="auth-footer">
       Don't have an account?
       <a routerLink="/register">Register</a>
     </p>
-
   </div>
 </div>

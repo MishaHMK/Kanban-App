@@ -1,21 +1,13 @@
 package com.kanban.project.controller;
 
-import com.kanban.project.dto.task.CreateTaskDto;
-import com.kanban.project.dto.task.EditTaskDto;
-import com.kanban.project.dto.task.MoveTaskDto;
-import com.kanban.project.dto.task.TaskDto;
+import com.kanban.project.dto.task.*;
 import com.kanban.project.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/task")
@@ -53,5 +45,27 @@ public class TaskController {
             @RequestHeader("X-User-Id") Long userId) {
         taskService.deleteTask(taskId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{taskId}/assign")
+    public ResponseEntity<TaskDto> assignTask(
+            @PathVariable Long taskId,
+            @Valid @RequestBody AssignTaskDto request,
+            @RequestHeader("X-User-Id") Long userId) {
+        return ResponseEntity.ok(taskService.assignTask(taskId, request, userId));
+    }
+
+    @PatchMapping("/{taskId}/unassign")
+    public ResponseEntity<TaskDto> unassignTask(
+            @PathVariable Long taskId,
+            @RequestHeader("X-User-Id") Long userId) {
+        return ResponseEntity.ok(taskService.unassignTask(taskId, userId));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<TaskDto>> searchTasks(
+            @Valid TaskSearchDto request,
+            @RequestHeader("X-User-Id") Long userId) {
+        return ResponseEntity.ok(taskService.searchTasks(request, userId));
     }
 }

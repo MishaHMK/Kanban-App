@@ -7,12 +7,12 @@ import com.kanban.project.errors.UserNotFoundException;
 import com.kanban.project.errors.UserServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
-
 import java.time.ZonedDateTime;
 
 @ControllerAdvice
@@ -35,6 +35,22 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponseDto> handleBadRequestException(
+            BadRequestException badRequestException, ServletWebRequest servletWebRequest) {
+        ErrorResponseDto errorResponseDTO =
+                new ErrorResponseDto(
+                        ZonedDateTime.now(),
+                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        badRequestException.getMessage(),
+                        servletWebRequest.getRequest().getRequestURI());
+
+        log.info(badRequestException.getMessage(), badRequestException);
+
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleNotFoundException(
             UserNotFoundException userNotFoundException, ServletWebRequest servletWebRequest) {
@@ -48,7 +64,7 @@ public class GlobalExceptionHandler {
 
         log.error(userNotFoundException.getMessage(), userNotFoundException);
 
-        return new ResponseEntity<>(errorResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
@@ -57,14 +73,14 @@ public class GlobalExceptionHandler {
         ErrorResponseDto errorResponseDTO =
                 new ErrorResponseDto(
                         ZonedDateTime.now(),
-                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        HttpStatus.CONFLICT.getReasonPhrase(),
                         HttpStatus.NOT_FOUND.value(),
                         userServiceException.getMessage(),
                         servletWebRequest.getRequest().getRequestURI());
 
         log.error(userServiceException.getMessage(), userServiceException);
 
-        return new ResponseEntity<>(errorResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
@@ -78,8 +94,8 @@ public class GlobalExceptionHandler {
                         invalidCredentialsException.getMessage(),
                         servletWebRequest.getRequest().getRequestURI());
 
-        log.error(invalidCredentialsException.getMessage(), invalidCredentialsException);
+        log.info(invalidCredentialsException.getMessage(), invalidCredentialsException);
 
-        return new ResponseEntity<>(errorResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
     }
 }

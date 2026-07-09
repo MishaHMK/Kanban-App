@@ -1,50 +1,90 @@
+@use 'variables' as *;
+
 :host {
   display: block;
 }
 
 .app-layout {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: $color-bg;
 }
 
 .app-header {
   display: flex;
   align-items: center;
+  gap: $space-lg;
   justify-content: space-between;
-  background: #fff;
-  border-bottom: 1px solid #f0f0f0;
-  padding: 0 32px;
+  background: $color-header-bg;
+  border-bottom: 1px solid $color-border;
+  padding: 0 $space-2xl;
   position: sticky;
   top: 0;
-  z-index: 100;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  z-index: $z-header;
+  box-shadow: $shadow-sm;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  font-weight: 600;
+  gap: $space-sm;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
   letter-spacing: -0.3px;
+  color: $color-header-text;
+}
+
+.logo-icon {
+  font-size: $font-size-xl;
+  color: $color-header-text;
+}
+
+.header-left {
+  flex-shrink: 3;
+  overflow: hidden;
+  min-width: 24px;
 }
 
 .username {
-  color: #595959;
-  font-size: 14px;
-  padding-right: 12px;
-  border-right: 1px solid #f0f0f0;
+  color: $color-header-text;
+  font-size: $font-size-base;
+  padding-right: $space-md;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .header-right {
+  flex-shrink: 1;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: $space-lg;
+}
+
+.task-search {
+  flex: 1 1 auto;
+  min-width: 120px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 500px;
+}
+
+.filter-btn {
+  flex-shrink: 0;
+  color: $color-header-text !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 .app-content {
   padding: 0;
   width: 100%;
+}
+
+::ng-deep .app-header .ant-btn {
+  color: $color-header-text;
 }
 
 ::ng-deep .ant-layout-content {
@@ -54,4 +94,55 @@
 
 ::ng-deep .ant-layout {
   width: 100% !important;
+}
+
+::ng-deep .app-header {
+  .logo,
+  .logo-icon,
+  .username {
+    color: $color-header-text !important;
+  }
+
+  .ant-btn,
+  .ant-btn-text,
+  .ant-btn span,
+  .anticon,
+  .anticon svg {
+    color: $color-header-text !important;
+    fill: $color-header-text !important;
+  }
+}
+
+::ng-deep .ant-modal-header {
+  background: $color-header-bg !important;
+  border-bottom: none !important;
+}
+
+::ng-deep .ant-modal-title > div {
+  color: $color-header-text !important;
+}
+
+::ng-deep .ant-modal-close,
+::ng-deep .ant-modal-close-x,
+::ng-deep .ant-modal-close-icon,
+::ng-deep .ant-modal-close svg {
+  color: $color-header-text !important;
+  fill: $color-header-text !important;
+}
+
+.app-footer {
+  text-align: center;
+  padding: $space-lg $space-2xl;
+  border-top: none;
+  font-size: $font-size-sm;
+  margin-top: $space-2xl * 1.5;
+}
+
+::ng-deep .app-footer {
+  background: $color-header-bg !important;
+  color: $color-header-text !important;
+
+  span {
+    color: $color-header-text !important;
+  }
 }

@@ -1,6 +1,5 @@
 <div class="auth-page">
   <div class="auth-card">
-
     <div class="auth-header">
       <div class="auth-logo">
         <span nz-icon nzType="layout" nzTheme="outline"></span>
@@ -10,7 +9,6 @@
     </div>
 
     <form nz-form [formGroup]="form" nzLayout="vertical" (ngSubmit)="submit()">
-
       <nz-form-item>
         <nz-form-label>Email</nz-form-label>
         <nz-form-control nzErrorTip="Please enter a valid email">
@@ -33,15 +31,20 @@
         <nz-form-label>Password</nz-form-label>
         <nz-form-control nzErrorTip="Password must be 8–64 characters">
           <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
-            <input nz-input formControlName="password"
+            <input
+              nz-input
+              formControlName="password"
               [type]="passwordVisible ? 'text' : 'password'"
-              placeholder="••••••••" />
+              placeholder="••••••••"
+            />
           </nz-input-group>
           <ng-template #suffixTemplate>
-            <span nz-icon
+            <span
+              nz-icon
+              class="password-toggle-icon"
               [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
               (click)="passwordVisible = !passwordVisible"
-              style="cursor: pointer">
+            >
             </span>
           </ng-template>
         </nz-form-control>
@@ -49,25 +52,40 @@
 
       <nz-form-item>
         <nz-form-label>Confirm password</nz-form-label>
-          <nz-form-control nzErrorTip="Passwords do not match">
-           <nz-input-group nzPrefixIcon="lock">
-              <input nz-input formControlName="repeatPassword"
-                [type]="passwordVisible ? 'text' : 'password'"
-              placeholder="••••••••" />
-            </nz-input-group>
-         </nz-form-control>
+        <nz-form-control [nzErrorTip]="confirmErrorTip">
+          <nz-input-group nzPrefixIcon="lock">
+            <input
+              nz-input
+              formControlName="repeatPassword"
+              [type]="passwordVisible ? 'text' : 'password'"
+              placeholder="••••••••"
+            />
+          </nz-input-group>
+        </nz-form-control>
+        <ng-template #confirmErrorTip>
+          @if (form.get('repeatPassword')?.errors?.['required']) {
+            Please confirm your password
+          } @else if (form.errors?.['passwordMismatch']) {
+            Passwords do not match
+          }
+        </ng-template>
       </nz-form-item>
 
-      <button nz-button nzType="primary" nzBlock [nzLoading]="loading" type="submit">
+      <button
+        nz-button
+        nzType="primary"
+        nzBlock
+        class="auth-submit-btn"
+        [nzLoading]="loading"
+        type="submit"
+      >
         Create account
       </button>
-
     </form>
 
     <p class="auth-footer">
       Already have an account?
       <a routerLink="/login">Sign in</a>
     </p>
-
   </div>
 </div>

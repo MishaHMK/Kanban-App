@@ -16,6 +16,9 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -40,6 +43,19 @@ public class Task {
 
     @Column(nullable = false)
     private Integer position;
+
+    @Column()
+    private Long reporterId;
+
+    @Column()
+    private Long assigneeId;
+
+    @CreationTimestamp
+    @Column()
+    private LocalDateTime createdAt;
+
+    @Column()
+    private LocalDateTime deadlineAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "column_id", nullable = false)

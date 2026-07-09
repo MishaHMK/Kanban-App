@@ -30,16 +30,6 @@ public interface ColumnRepository extends JpaRepository<KanbanColumn, Long> {
     @Query("""
         SELECT c FROM KanbanColumn c
         LEFT JOIN FETCH c.tasks t
-        WHERE c.board.id = :boardId
-          AND (c.board.ownerId = :userId OR :userId MEMBER OF c.board.collaboratorIds)
-        ORDER BY c.position, t.position
-    """)
-    List<KanbanColumn> findColumnsWithTasksForUser(@Param("boardId") Long boardId,
-                                                   @Param("userId")  Long userId);
-
-    @Query("""
-        SELECT c FROM KanbanColumn c
-        LEFT JOIN FETCH c.tasks t
         WHERE c.board.ownerId = :userId
            OR :userId MEMBER OF c.board.collaboratorIds
         ORDER BY c.position, t.position
@@ -47,12 +37,34 @@ public interface ColumnRepository extends JpaRepository<KanbanColumn, Long> {
     List<KanbanColumn> findAllColumns(@Param("userId") Long userId);
 
     @Query("""
-    SELECT c FROM KanbanColumn c
-    LEFT JOIN FETCH c.tasks t
-    WHERE c.board.id = :boardId
-    ORDER BY c.position, t.position
+        SELECT c FROM KanbanColumn c
+        LEFT JOIN FETCH c.tasks t
+        WHERE c.board.id = :boardId
+        ORDER BY c.position, t.position
     """)
     List<KanbanColumn> findColumnsWithTasks(@Param("boardId") Long boardId);
 
-    long countByBoardId(Long boardId);
+    @Modifying
+    @Query(value = """
+        UPDATE kanban_columns
+        SET position = position - 1
+        WHERE board_id = :boardId AND position > :oldPos AND position <= :newPos
+        ORDER BY position ASC
+    """, nativeQuery = true)
+    void shiftRangeLeft(@Param("boardId") Long boardId,
+                        @Param("oldPos")  Integer oldPos,
+                        @Param("newPos")  Integer newPos);
+
+    @Modifying
+    @Query(value = """
+        UPDATE kanban_columns
+        SET position = position + 1
+        WHERE board_id = :boardId AND position >= :newPos AND position < :oldPos
+        ORDER BY position DESC
+    """, nativeQuery = true)
+    void shiftRangeRight(@Param("boardId") Long boardId,
+                         @Param("newPos")  Integer newPos,
+                         @Param("oldPos")  Integer oldPos);
+
+    Integer countByBoardId(Long boardId);
 }

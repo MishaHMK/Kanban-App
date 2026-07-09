@@ -1,9 +1,15 @@
 package com.kanban.project.dto.task;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+
 public record CreateTaskDto(
-        String title,
+        @NotBlank String title,
         String description,
-        String priority,
-        Integer position,
-        Long columnId) {
+        @NotBlank String priority,
+        @NotNull Integer position,
+        @NotNull Long columnId,
+        LocalDateTime deadlineAt,
+        Long assigneeId ) {
 }

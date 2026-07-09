@@ -6,6 +6,7 @@ import com.kanban.project.dto.UserDto;
 import com.kanban.project.dto.UserRegistrationDto;
 import com.kanban.project.entity.User;
 import com.kanban.project.errors.ExceptionMessage;
+import com.kanban.project.errors.InvalidCredentialsException;
 import com.kanban.project.errors.UserAlreadyExistsException;
 import com.kanban.project.errors.UserNotFoundException;
 import com.kanban.project.helper.JwtHelper;
@@ -14,6 +15,7 @@ import com.kanban.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,8 +44,12 @@ public class UserService {
     }
 
     public LoginResponseDto login(LoginRequestDto dto) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.email(), dto.password()));
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.email(), dto.password()));
+        } catch (BadCredentialsException e) {
+            throw new InvalidCredentialsException(ExceptionMessage.INVALID_CREDENTIALS);
+        }
 
         User user = userRepository.findUserByEmail(dto.email())
                 .orElseThrow(() -> new UserNotFoundException(ExceptionMessage.USER_NOT_FOUND));

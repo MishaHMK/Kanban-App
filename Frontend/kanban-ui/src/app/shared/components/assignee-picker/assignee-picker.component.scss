@@ -1,0 +1,77 @@
+@use 'variables' as *;
+
+.assignee-trigger {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-sm $space-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: border-color $transition-fast;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+}
+
+.assignee-name {
+  flex: 1;
+  font-size: $font-size-base;
+  color: $color-text;
+}
+
+.assignee-placeholder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: $space-xs;
+  color: $color-text-disabled;
+  font-size: $font-size-base;
+}
+
+.dropdown-arrow {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+::ng-deep .assignee-menu .ant-dropdown-menu-item {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-sm $space-md;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.member-nickname {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+}
+
+.member-email {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.member-item-you {
+  background: rgba($color-warning, 0.08);
+}
+
+.you-tag {
+  display: inline-block;
+  margin-left: $space-xs;
+  padding: 1px 6px;
+  border-radius: $radius-sm;
+  background: $color-warning;
+  color: $color-text;
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
+}

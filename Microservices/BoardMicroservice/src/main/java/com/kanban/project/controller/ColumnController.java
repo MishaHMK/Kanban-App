@@ -3,6 +3,7 @@ package com.kanban.project.controller;
 import com.kanban.project.dto.board.BoardDto;
 import com.kanban.project.dto.column.ColumnCreateDto;
 import com.kanban.project.dto.column.KanbanColumnDto;
+import com.kanban.project.dto.column.MoveColumnDto;
 import com.kanban.project.dto.column.UpdateColumnNameDto;
 import com.kanban.project.service.ColumnService;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +43,13 @@ public class ColumnController {
             @PathVariable Long columnId,
             @RequestHeader("X-User-Id") Long userId) {
         return ResponseEntity.ok(columnService.deleteColumn(columnId, userId));
+    }
+
+    @PatchMapping("/{columnId}/move")
+    public ResponseEntity<BoardDto> moveColumn(
+            @PathVariable Long columnId,
+            @RequestBody MoveColumnDto request,
+            @RequestHeader("X-User-Id") Long userId) {
+        return ResponseEntity.ok(columnService.moveColumn(columnId, request, userId));
     }
 }

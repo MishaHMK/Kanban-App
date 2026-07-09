@@ -1,0 +1,10 @@
+<div
+  class="avatar"
+  [class.avatar-reporter]="variant() === 'reporter'"
+  [class.avatar-you]="variant() === 'you'"
+  [style.width]="sizePx()"
+  [style.height]="sizePx()"
+  [style.font-size]="fontSize()"
+>
+  {{ initial() }}
+</div>

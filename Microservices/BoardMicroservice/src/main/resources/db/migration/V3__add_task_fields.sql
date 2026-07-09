@@ -1,0 +1,5 @@
+ALTER TABLE tasks
+    ADD COLUMN reporter_id  BIGINT    NULL,
+    ADD COLUMN assignee_id  BIGINT    NULL,
+    ADD COLUMN created_at   DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ADD COLUMN deadline_at  DATETIME  NULL;

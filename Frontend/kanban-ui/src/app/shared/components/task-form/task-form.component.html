@@ -1,0 +1,49 @@
+<form nz-form [formGroup]="form()" nzLayout="vertical">
+  <nz-form-item>
+    <nz-form-label>Title</nz-form-label>
+    <nz-form-control nzErrorTip="Required">
+      <input nz-input formControlName="title" placeholder="Task title" />
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label>Description</nz-form-label>
+    <nz-form-control>
+      <textarea
+        nz-input
+        formControlName="description"
+        placeholder="Optional description"
+        [nzAutosize]="{ minRows: 2, maxRows: 4 }"
+      ></textarea>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label>Priority</nz-form-label>
+    <nz-form-control>
+      <nz-select formControlName="priority" class="priority-select">
+        @for (p of priorities; track p.value) {
+          <nz-option [nzValue]="p.value" [nzLabel]="p.label"></nz-option>
+        }
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label>Deadline</nz-form-label>
+    <nz-form-control>
+      <app-date-time-picker
+        [value]="form().get('deadlineAt')?.value"
+        (valueChange)="form().patchValue({ deadlineAt: $event })"
+        placeholder="Set deadline"
+      />
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label>Assignee</nz-form-label>
+    <nz-form-control>
+      <app-assignee-picker
+        [members]="boardMembers()"
+        [selectedId]="form().get('assigneeId')?.value"
+        (assigneeChange)="onAssigneeChange($event)"
+      />
+    </nz-form-control>
+  </nz-form-item>
+</form>

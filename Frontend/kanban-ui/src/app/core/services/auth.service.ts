@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
@@ -7,19 +7,22 @@ import { LoginRequest, LoginResponse, RegisterRequest } from '../models/auth.mod
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
   private readonly TOKEN_KEY = 'kanban_token';
-  private readonly USER_KEY  = 'kanban_user';
+  private readonly USER_KEY = 'kanban_user';
+
+  private url = `${environment.apiUrl}/auth`;
 
   currentUser = signal<LoginResponse | null>(this.loadUser());
 
-  constructor(private http: HttpClient, private router: Router) {}
-
   register(request: RegisterRequest) {
-    return this.http.post(`${environment.apiUrl}/auth/registration`, request);
+    return this.http.post(`${this.url}/registration`, request);
   }
 
   login(request: LoginRequest) {
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, request).pipe(
+    return this.http.post<LoginResponse>(`${this.url}/login`, request).pipe(
       tap(response => {
         localStorage.setItem(this.TOKEN_KEY, response.token);
         localStorage.setItem(this.USER_KEY, JSON.stringify(response));

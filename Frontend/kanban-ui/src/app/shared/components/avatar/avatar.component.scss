@@ -1,0 +1,22 @@
+@use 'variables' as *;
+
+.avatar {
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-primary-light;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+  flex-shrink: 0;
+}
+
+.avatar-reporter {
+  background: rgba($color-reporter, 0.15);
+  color: $color-reporter;
+}
+
+.avatar-you {
+  background: rgba($color-warning, 0.2);
+  color: darken($color-warning, 15%);
+}

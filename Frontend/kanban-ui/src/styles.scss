@@ -1,3 +1,5 @@
+@use 'variables' as *;
+
 * {
   margin: 0;
   padding: 0;
@@ -5,7 +7,8 @@
   color: #262626;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   width: 100%;
 }
@@ -16,3 +19,48 @@ app-root {
   width: 100%;
 }
 
+.ant-message-notice-content {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 0 !important;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.ant-message-custom-content {
+  display: flex !important;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 16px;
+  font-weight: 500;
+}
+
+.ant-message-custom-content,
+.ant-message-custom-content * {
+  color: #ffffff !important;
+}
+
+.ant-message-custom-content .anticon,
+.ant-message-custom-content .anticon svg,
+.ant-message-custom-content .anticon path {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+.ant-message-custom-content .anticon {
+  font-size: 20px;
+  margin-right: 12px;
+}
+
+.ant-message-custom-content.ant-message-error {
+  background-color: #ef4444 !important;
+}
+
+.ant-message-custom-content.ant-message-success {
+  background-color: #10b92c !important;
+}
+
+.clear-icon {
+  color: $color-error;
+}

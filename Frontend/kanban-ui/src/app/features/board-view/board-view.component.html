@@ -1,5 +1,4 @@
 <div class="board-page">
-
   <div class="board-header">
     <button nz-button nzType="text" (click)="back()" class="back-btn">
       <span nz-icon nzType="arrow-left"></span>
@@ -7,14 +6,34 @@
     </button>
     <h2 class="board-title">{{ board()?.name }}</h2>
 
+    <nz-input-group [nzPrefix]="searchIcon" class="task-search">
+      <input
+        nz-input
+        placeholder="Search tasks..."
+        [value]="searchQuery"
+        (input)="onSearchInput($any($event.target).value)"
+      />
+    </nz-input-group>
+    <ng-template #searchIcon>
+      <span nz-icon nzType="search"></span>
+    </ng-template>
+
+    <button nz-button (click)="toggleFilterPanel()">
+      <span nz-icon nzType="filter"></span>
+      Filters
+    </button>
+
     <div class="header-actions">
       @if (isOwner()) {
         <button nz-button (click)="openCollaboratorModal()">
           <span nz-icon nzType="team"></span>
           Collaborators
         </button>
-        <button nz-button (click)="openColumnModal()"
-          [disabled]="(board()?.columns?.length ?? 0) >= 5">
+        <button
+          nz-button
+          (click)="openColumnModal()"
+          [disabled]="(board()?.columns?.length ?? 0) >= 5"
+        >
           <span nz-icon nzType="plus"></span>
           Add column
         </button>
@@ -23,108 +42,151 @@
   </div>
 
   <nz-spin [nzSpinning]="loading()">
-    <div class="columns-container">
+    <div
+      class="columns-container"
+      cdkDropList
+      cdkDropListOrientation="horizontal"
+      [cdkDropListData]="board()?.columns ?? []"
+      (cdkDropListDropped)="dropColumn($event)"
+    >
+      @for (column of board()?.columns ?? []; track column.id) {
+        <div class="column" cdkDrag>
+          <div class="column-drag-placeholder" *cdkDragPlaceholder></div>
 
-  @for (column of board()?.columns ?? []; track column.id) {
-    <div class="column">
-      <div class="column-header">
-        @if (editingColumnId === column.id) {
-          <input
-            class="column-name-input"
-            [value]="editingColumnName"
-            (input)="editingColumnName = $any($event.target).value"
-            (blur)="finishColumnRename(column)"
-            (keydown.enter)="finishColumnRename(column)"
-            (keydown.escape)="cancelColumnRename()"
-            (click)="$event.stopPropagation()" />
-        } @else {
-          <span class="column-name"
-            (dblclick)="isOwner() && startColumnRename(column)">
-            {{ column.name }}
-          </span>
-        }
-        <div class="column-actions">
-          <span class="task-count">{{ column.tasks.length }}/10</span>
-          @if (isOwner()) {
-            <button nz-button nzType="text" nzSize="small" nzDanger
-              nz-popconfirm
-              nzPopconfirmTitle="Delete this column and all its tasks?"
-              (nzOnConfirm)="deleteColumn(column.id)">
-              <span nz-icon nzType="delete"></span>
-            </button>
-          }
-        </div>
-      </div>
-
-      <div class="tasks-list"
-        cdkDropList
-        [id]="column.id.toString()"
-        [cdkDropListData]="column.tasks"
-        [cdkDropListConnectedTo]="getColumnIds()"
-        (cdkDropListDropped)="dropTask($event, column.id)">
-
-        @for (task of column.tasks; track task.id) {
-          <div class="task-card"
-            cdkDrag
-            [cdkDragData]="task"
-            (click)="openEditTask(task)">
-
-            <div class="task-drag-placeholder" *cdkDragPlaceholder></div>
-
-            <div class="task-drag-preview" *cdkDragPreview>
-              <div class="task-title">{{ task.title }}</div>
-              <nz-tag [nzColor]="priorityColor(task.priority)">{{ task.priority }}</nz-tag>
-            </div>
-
-            <div class="task-title">{{ task.title }}</div>
-            @if (task.description) {
-              <div class="task-desc">{{ task.description }}</div>
+          <div class="column-header">
+            @if (editingColumnId === column.id) {
+              <input
+                #columnNameInput
+                class="column-name-input"
+                [value]="editingColumnName"
+                (input)="editingColumnName = $any($event.target).value"
+                (blur)="finishColumnRename(column)"
+                (keydown.enter)="finishColumnRename(column)"
+                (keydown.escape)="cancelColumnRename()"
+                (click)="$event.stopPropagation()"
+              />
+            } @else {
+              <span class="column-name" (dblclick)="isOwner() && startColumnRename(column)">
+                {{ column.name }}
+              </span>
             }
-            <div class="task-footer">
-              <nz-tag [nzColor]="priorityColor(task.priority)">
-                {{ task.priority }}
-              </nz-tag>
-              <button nz-button nzType="text" nzSize="small" nzDanger
-                class="task-delete"
-                nz-popconfirm
-                nzPopconfirmTitle="Delete this task?"
-                (nzOnConfirm)="deleteTask(task.id)"
-                (click)="$event.stopPropagation()">
-                <span nz-icon nzType="delete"></span>
-              </button>
+            <div class="column-actions">
+              <span class="task-count">{{ column.tasks.length }}/10</span>
+              @if (isOwner()) {
+                <button
+                  nz-button
+                  nzType="text"
+                  nzSize="small"
+                  nzDanger
+                  nz-popconfirm
+                  nzPopconfirmTitle="Delete this column and all its tasks?"
+                  (nzOnConfirm)="deleteColumn(column.id)"
+                >
+                  <span nz-icon nzType="delete"></span>
+                </button>
+              }
             </div>
           </div>
-        }
-      </div>
 
-      <button nz-button nzType="dashed" nzBlock
-        class="add-task-btn"
-        [disabled]="column.tasks.length >= 10"
-        (click)="openTaskModal(column.id)">
-        <span nz-icon nzType="plus"></span>
-        Add task
-      </button>
+          <div
+            class="tasks-list"
+            cdkDropList
+            [id]="column.id.toString()"
+            [cdkDropListData]="column.tasks"
+            [cdkDropListConnectedTo]="getColumnIds()"
+            (cdkDropListDropped)="dropTask($event, column.id)"
+          >
+            @for (task of column.tasks; track task.id) {
+              @if (taskMatchesFilter(task)) {
+                <div class="task-card" cdkDrag [cdkDragData]="task" (click)="openTaskDetails(task)">
+                  <div class="task-drag-placeholder" *cdkDragPlaceholder></div>
 
+                  <div class="task-drag-preview" *cdkDragPreview>
+                    <div class="task-title">{{ task.title }}</div>
+                    <nz-tag [nzColor]="priorityColor(task.priority)">{{ task.priority }}</nz-tag>
+                  </div>
+
+                  <div class="task-title">{{ task.title }}</div>
+                  @if (task.description) {
+                    <div class="task-desc">{{ task.description }}</div>
+                  }
+
+                  <div class="task-meta-row">
+                    <nz-tag [nzColor]="priorityColor(task.priority)">
+                      {{ task.priority }}
+                    </nz-tag>
+
+                    @if (task.deadlineAt) {
+                      <span class="deadline-badge" [class.overdue]="isOverdue(task.deadlineAt)">
+                        <span nz-icon nzType="calendar"></span>
+                        {{ task.deadlineAt | date: 'MMM d' }}
+                      </span>
+                    }
+
+                    @if (task.assigneeId) {
+                      <app-avatar [nickname]="assigneeNickname(task.assigneeId)" [size]="24" />
+                    }
+                  </div>
+
+                  <div class="task-footer">
+                    <button
+                      nz-button
+                      nzType="text"
+                      nzSize="small"
+                      class="task-edit"
+                      (click)="$event.stopPropagation(); openEditTask(task)"
+                    >
+                      <span nz-icon nzType="edit"></span>
+                    </button>
+                    <button
+                      nz-button
+                      nzType="text"
+                      nzSize="small"
+                      nzDanger
+                      class="task-delete"
+                      nz-popconfirm
+                      nzPopconfirmTitle="Delete this task?"
+                      (nzOnConfirm)="deleteTask(task.id)"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <span nz-icon nzType="delete"></span>
+                    </button>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+
+          <button
+            nz-button
+            nzType="dashed"
+            nzBlock
+            class="add-task-btn"
+            [disabled]="column.tasks.length >= 10"
+            (click)="openTaskModal(column.id)"
+          >
+            <span nz-icon nzType="plus"></span>
+            Add task
+          </button>
+        </div>
+      }
+
+      @if (isOwner() && (board()?.columns?.length ?? 0) < 5) {
+        <button type="button" class="add-column-placeholder" (click)="openColumnModal()">
+          <span nz-icon nzType="plus-circle" class="add-column-icon"></span>
+          <span>New column</span>
+        </button>
+      }
     </div>
-  }
-
-  @if (isOwner() && (board()?.columns?.length ?? 0) < 5) {
-    <div class="add-column-placeholder" (click)="openColumnModal()">
-      <span nz-icon nzType="plus-circle" style="font-size: 24px; color: #bfbfbf"></span>
-      <span>New column</span>
-    </div>
-  }
-
-</div>
   </nz-spin>
-
 </div>
 
 <nz-modal
   [(nzVisible)]="columnModalVisible"
   nzTitle="Add column"
   (nzOnOk)="addColumn()"
-  (nzOnCancel)="closeColumnModal()">
+  (nzOnCancel)="closeColumnModal()"
+>
   <ng-container *nzModalContent>
     <form nz-form [formGroup]="columnForm" nzLayout="vertical">
       <nz-form-item>
@@ -142,35 +204,10 @@
   nzTitle="Add task"
   [nzOkLoading]="taskModalLoading"
   (nzOnOk)="addTask()"
-  (nzOnCancel)="closeTaskModal()">
+  (nzOnCancel)="closeTaskModal()"
+>
   <ng-container *nzModalContent>
-    <form nz-form [formGroup]="taskForm" nzLayout="vertical">
-      <nz-form-item>
-        <nz-form-label>Title</nz-form-label>
-        <nz-form-control nzErrorTip="Required">
-          <input nz-input formControlName="title" placeholder="Task title" />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label>Description</nz-form-label>
-        <nz-form-control>
-          <textarea nz-input formControlName="description"
-            placeholder="Optional description"
-            [nzAutosize]="{ minRows: 2, maxRows: 4 }">
-          </textarea>
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label>Priority</nz-form-label>
-        <nz-form-control>
-          <nz-select formControlName="priority" style="width: 100%">
-            @for (p of priorities; track p.value) {
-              <nz-option [nzValue]="p.value" [nzLabel]="p.label"></nz-option>
-            }
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-    </form>
+    <app-task-form [form]="taskForm" [boardMembers]="allBoardUsers()" />
   </ng-container>
 </nz-modal>
 
@@ -178,34 +215,23 @@
   [(nzVisible)]="editTaskModalVisible"
   nzTitle="Edit task"
   (nzOnOk)="saveEditTask()"
-  (nzOnCancel)="editTaskModalVisible = false">
+  (nzOnCancel)="editTaskModalVisible = false"
+>
   <ng-container *nzModalContent>
-    <form nz-form [formGroup]="editTaskForm" nzLayout="vertical">
-      <nz-form-item>
-        <nz-form-label>Title</nz-form-label>
-        <nz-form-control nzErrorTip="Required">
-          <input nz-input formControlName="title" />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label>Description</nz-form-label>
-        <nz-form-control>
-          <textarea nz-input formControlName="description"
-            [nzAutosize]="{ minRows: 2, maxRows: 4 }">
-          </textarea>
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label>Priority</nz-form-label>
-        <nz-form-control>
-          <nz-select formControlName="priority" style="width: 100%">
-            @for (p of priorities; track p.value) {
-              <nz-option [nzValue]="p.value" [nzLabel]="p.label"></nz-option>
-            }
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-    </form>
+    <app-task-form [form]="editTaskForm" [boardMembers]="allBoardUsers()" />
+  </ng-container>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="taskDetailsModalVisible"
+  nzTitle="Task details"
+  (nzOnCancel)="closeTaskDetails()"
+  [nzFooter]="null"
+>
+  <ng-container *nzModalContent>
+    @if (selectedTask) {
+      <app-task-details [task]="selectedTask" [users]="allBoardUsers()" />
+    }
   </ng-container>
 </nz-modal>
 
@@ -214,72 +240,160 @@
   nzTitle="Manage collaborators"
   [nzFooter]="null"
   nzWidth="500px"
-  (nzOnCancel)="collaboratorModalVisible = false">
+  (nzOnCancel)="collaboratorModalVisible = false"
+>
   <ng-container *nzModalContent>
-
-    <nz-input-group [nzPrefix]="searchIcon" [nzSuffix]="searchSpin">
-      <input nz-input
-        placeholder="Search by email..."
-        (input)="onSearchInput($any($event.target).value)" />
-    </nz-input-group>
-    <ng-template #searchIcon>
-      <span nz-icon nzType="search"></span>
-    </ng-template>
-    <ng-template #searchSpin>
-      @if (searchLoading) {
-        <span nz-icon nzType="loading"></span>
-      }
-    </ng-template>
-
-    @if (searchResults().length > 0) {
-      <div class="search-results">
-        @for (user of searchResults(); track user.id) {
-          <div class="search-result-item">
-            <div class="collaborator-avatar">
-              {{ user.nickname.charAt(0).toUpperCase() }}
-            </div>
-            <div class="user-info">
-              <span class="user-email">{{ user.email }}</span>
-              <span class="user-nickname">{{ user.nickname }}</span>
-            </div>
-            @if (isCollaborator(user.id)) {
-              <nz-tag nzColor="green">Added</nz-tag>
-            } @else {
-              <button nz-button nzType="primary" nzSize="small"
-                (click)="addCollaborator(user)">
-                Add
-              </button>
-            }
-          </div>
-        }
-      </div>
-    }
+    <app-user-search
+      [selectedIds]="board()?.collaboratorIds ?? []"
+      (userSelected)="addCollaborator($event)"
+    />
 
     <div class="collaborators-section">
       <p class="section-label">Current collaborators</p>
       @if (collaborators().length === 0) {
-        <p style="color: #8c8c8c; font-size: 13px;">No collaborators yet</p>
+        <p class="empty-hint">No collaborators yet</p>
       } @else {
         @for (user of collaborators(); track user.id) {
           <div class="collaborator-item">
-            <div class="collaborator-avatar">
-              {{ user.nickname.charAt(0).toUpperCase() }}
-            </div>
+            <app-avatar [nickname]="user.nickname"></app-avatar>
             <div class="user-info">
               <span class="user-email">{{ user.email }}</span>
               <span class="user-nickname">{{ user.nickname }}</span>
             </div>
-            <button nz-button nzType="text" nzDanger nzSize="small"
-              style="margin-left: auto;"
+            <button
+              nz-button
+              nzType="text"
+              nzDanger
+              nzSize="small"
+              class="remove-collaborator-btn"
               nz-popconfirm
               nzPopconfirmTitle="Remove this collaborator?"
-              (nzOnConfirm)="removeCollaborator(user.id)">
+              (nzOnConfirm)="removeCollaborator(user.id)"
+            >
               <span nz-icon nzType="delete"></span>
             </button>
           </div>
         }
       }
     </div>
+  </ng-container>
+</nz-modal>
 
+<nz-modal
+  [(nzVisible)]="filterPanelVisible"
+  nzTitle="Filter tasks"
+  (nzOnOk)="applyFilters()"
+  (nzOnCancel)="filterPanelVisible = false"
+  nzOkText="Apply"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="filterForm" nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-label>
+          Priority
+        </nz-form-label>
+        <nz-form-control>
+          <nz-select
+            formControlName="priority"
+            nzAllowClear
+            nzPlaceHolder="Any"
+            class="filter-select"
+          >
+            <nz-option nzValue="LOW" nzLabel="Low"></nz-option>
+            <nz-option nzValue="MEDIUM" nzLabel="Medium"></nz-option>
+            <nz-option nzValue="HIGH" nzLabel="High"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>
+          Assignee
+        </nz-form-label>
+        <nz-form-control>
+          <nz-select
+            formControlName="assigneeId"
+            nzAllowClear
+            nzPlaceHolder="Any"
+            class="filter-select"
+          >
+            @for (member of allBoardUsers(); track member.id) {
+              <nz-option [nzValue]="member.id" [nzLabel]="member.nickname"></nz-option>
+            }
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>
+          Reporter
+        </nz-form-label>
+        <nz-form-control>
+          <nz-select
+            formControlName="reporterId"
+            nzAllowClear
+            nzPlaceHolder="Any"
+            class="filter-select"
+          >
+            @for (member of allBoardUsers(); track member.id) {
+              <nz-option [nzValue]="member.id" [nzLabel]="member.nickname"></nz-option>
+            }
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>
+          Created from
+        </nz-form-label>
+        <nz-form-control>
+          <app-date-time-picker
+            [value]="filterForm.get('createdFrom')?.value"
+            (valueChange)="filterForm.patchValue({ createdFrom: $event })"
+            placeholder="From"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>
+          Created to
+        </nz-form-label>
+        <nz-form-control>
+          <app-date-time-picker
+            [value]="filterForm.get('createdTo')?.value"
+            (valueChange)="filterForm.patchValue({ createdTo: $event })"
+            placeholder="To"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>
+          Deadline from
+        </nz-form-label>
+        <nz-form-control>
+          <app-date-time-picker
+            [value]="filterForm.get('deadlineFrom')?.value"
+            (valueChange)="filterForm.patchValue({ deadlineFrom: $event })"
+            placeholder="From"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>
+          Deadline to
+        </nz-form-label>
+        <nz-form-control>
+          <app-date-time-picker
+            [value]="filterForm.get('deadlineTo')?.value"
+            (valueChange)="filterForm.patchValue({ deadlineTo: $event })"
+            placeholder="To"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <button nz-button (click)="clearFilters()" type="button">Clear all</button>
+    </form>
   </ng-container>
 </nz-modal>

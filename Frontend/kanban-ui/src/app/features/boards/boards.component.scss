@@ -1,3 +1,5 @@
+@use 'variables' as *;
+
 :host {
   display: block;
   width: 100%;
@@ -5,7 +7,7 @@
 }
 
 .boards-page {
-  padding: 40px 48px;
+  padding: $space-2xl + 8px $space-2xl + 16px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -14,68 +16,68 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 32px;
+  margin-bottom: $space-2xl;
 
   h1 {
     margin: 0;
-    font-size: 24px;
-    font-weight: 600;
+    font-size: $font-size-xl + 4px;
+    font-weight: $font-weight-semibold;
   }
 }
 
 .inline-edit {
   border: none;
-  border-bottom: 2px solid #1677ff;
+  border-bottom: 2px solid $color-primary;
   outline: none;
   background: transparent;
-  font-size: 16px;
-  font-weight: 500;
+  font-size: $font-size-base + 2px;
+  font-weight: $font-weight-medium;
   width: 100%;
   padding: 0;
-  color: #262626;
+  color: $color-text;
 }
 
 .board-card {
   cursor: pointer;
   position: relative;
-  border-radius: 12px;
-  transition: box-shadow 0.2s;
+  border-radius: $radius-lg;
+  transition: box-shadow $transition-fast;
 
   .board-card-body {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: $space-md;
   }
 
   .board-card-title {
-    font-size: 16px;
-    font-weight: 500;
-    color: #262626;
+    font-size: $font-size-base + 2px;
+    font-weight: $font-weight-medium;
+    color: $color-text;
   }
 
   .board-card-meta {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: #8c8c8c;
-    font-size: 13px;
+    gap: $space-sm;
+    color: $color-text-tertiary;
+    font-size: $font-size-md;
   }
 
   .board-card-columns {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: $space-xs;
   }
 }
 
 .board-card-actions {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: $space-md;
+  right: $space-md;
   display: flex;
-  gap: 4px;
+  gap: $space-xs;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity $transition-fast;
 }
 
 .board-card:hover .board-card-actions {

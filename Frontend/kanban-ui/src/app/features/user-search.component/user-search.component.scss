@@ -1,0 +1,38 @@
+@use 'variables' as *;
+
+.search-results {
+  margin-top: $space-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  padding: $space-sm $space-md;
+  gap: $space-md;
+  border-bottom: 1px solid $color-border-light;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 2px;
+}
+
+.user-email {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text;
+}
+
+.user-nickname {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

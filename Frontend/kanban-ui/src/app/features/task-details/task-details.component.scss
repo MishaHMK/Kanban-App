@@ -1,0 +1,52 @@
+@use 'variables' as *;
+
+.task-details {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+  align-items: flex-start;
+}
+
+.detail-label {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: $font-size-base;
+  color: $color-text;
+  display: flex;
+  align-items: center;
+  gap: $space-xs;
+
+  &.title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+  }
+
+  &.overdue {
+    color: $color-overdue;
+  }
+}
+
+.detail-empty {
+  font-size: $font-size-base;
+  color: $color-text-disabled;
+  font-style: italic;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: $font-size-base;
+}

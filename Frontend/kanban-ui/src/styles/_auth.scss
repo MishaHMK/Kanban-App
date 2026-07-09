@@ -1,0 +1,72 @@
+@use 'variables' as *;
+
+.auth-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-bg;
+}
+
+.auth-card {
+  background: $color-bg-white;
+  border-radius: $radius-lg;
+  padding: $space-2xl + 8px $space-2xl + 4px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: $space-2xl;
+
+  h2 {
+    margin: 0 0 6px;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-medium;
+  }
+
+  p {
+    margin: 0;
+    color: $color-text-tertiary;
+    font-size: $font-size-base;
+  }
+}
+
+.auth-logo {
+  width: 52px;
+  height: 52px;
+  background: $color-primary;
+  border-radius: $radius-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto $space-lg;
+
+  span {
+    font-size: 26px;
+    color: $color-bg-white;
+  }
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: $space-lg + 4px;
+  color: $color-text-tertiary;
+  font-size: $font-size-base;
+
+  a {
+    color: $color-primary;
+  }
+}
+
+.auth-submit-btn {
+  margin-top: $space-sm;
+  height: 40px;
+}
+
+.password-toggle-icon {
+  cursor: pointer;
+}

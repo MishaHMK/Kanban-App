@@ -1,0 +1,8 @@
+<nz-date-picker
+  [ngModel]="value()"
+  (ngModelChange)="onChange($event)"
+  [nzFormat]="dateFormat"
+  [nzShowTime]="showTimeConfig"
+  [nzPlaceHolder]="placeholder()"
+  class="date-time-picker"
+/>
