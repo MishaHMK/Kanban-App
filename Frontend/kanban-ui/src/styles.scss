@@ -64,3 +64,20 @@ app-root {
 .clear-icon {
   color: $color-error;
 }
+
+.ant-btn-primary {
+  background: $color-header-bg !important;
+  border-color: $color-header-bg !important;
+
+  span,
+  .anticon,
+  .anticon svg {
+    color: $color-header-text !important;
+    fill: $color-header-text !important;
+  }
+
+  &:hover {
+    background: $color-primary-hover !important;
+    border-color: $color-primary-hover !important;
+  }
+}

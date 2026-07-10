@@ -44,10 +44,17 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto $space-lg;
+}
 
-  span {
-    font-size: 26px;
-    color: $color-bg-white;
+::ng-deep .auth-logo {
+  .anticon,
+  .anticon svg {
+    color: $color-bg-white !important;
+    fill: $color-bg-white !important;
+  }
+
+  .anticon {
+    font-size: 28px !important;
   }
 }
 
