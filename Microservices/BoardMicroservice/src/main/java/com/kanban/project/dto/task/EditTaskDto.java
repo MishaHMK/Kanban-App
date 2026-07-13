@@ -8,5 +8,7 @@ public record EditTaskDto(
         @NotBlank String title,
         String description,
         @NotBlank String priority,
-        LocalDateTime deadlineAt ) {
+        LocalDateTime deadlineAt,
+        Long assigneeId
+) {
 }

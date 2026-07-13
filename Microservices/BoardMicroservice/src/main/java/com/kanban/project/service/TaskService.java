@@ -45,13 +45,7 @@ public class TaskService {
             throw new BoardServiceException(ExceptionMessage.COLUMN_TASK_LIMIT_REACHED);
         }
 
-        if (request.assigneeId() != null) {
-            boolean isOwner = board.getOwnerId().equals(request.assigneeId());
-            boolean isCollaborator = board.getCollaboratorIds().contains(request.assigneeId());
-            if (!isOwner && !isCollaborator) {
-                throw new BoardServiceException(ExceptionMessage.FORBIDDEN);
-            }
-        }
+        validateAssignee(board, request.assigneeId());
 
         int safePosition = countSafeCreatePosition(column, request.position());
         taskRepository.shiftRight(column.getId(), safePosition);
@@ -77,12 +71,16 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new BoardServiceException(ExceptionMessage.NOT_FOUND));
 
-        boardHelper.verifyAccess(task.getColumn().getBoard(), requesterId, false);
+        Board board = task.getColumn().getBoard();
+        boardHelper.verifyAccess(board, requesterId, false);
+
+        validateAssignee(board, request.assigneeId());
 
         task.setTitle(request.title())
                 .setDescription(request.description())
                 .setPriority(Priority.get(request.priority()))
-                .setDeadlineAt(request.deadlineAt());
+                .setDeadlineAt(request.deadlineAt())
+                .setAssigneeId(request.assigneeId());
 
         TaskDto result = taskMapper.toDto(taskRepository.save(task));
         boardSyncHelper.shareFullBoard(task.getColumn().getBoard().getId());
@@ -158,12 +156,7 @@ public class TaskService {
         Board board = task.getColumn().getBoard();
         boardHelper.verifyAccess(board, requesterId, false);
 
-        boolean isOwner = board.getOwnerId().equals(request.assigneeId());
-        boolean isCollaborator = board.getCollaboratorIds().contains(request.assigneeId());
-
-        if (!isOwner && !isCollaborator) {
-            throw new BoardServiceException(ExceptionMessage.FORBIDDEN);
-        }
+        validateAssignee(board, request.assigneeId());
 
         task.setAssigneeId(request.assigneeId());
         TaskDto result = taskMapper.toDto(taskRepository.save(task));
@@ -234,5 +227,16 @@ public class TaskService {
                 .stream()
                 .map(taskMapper::toDto)
                 .toList();
+    }
+
+    private void validateAssignee(Board board, Long assigneeId) {
+        if (assigneeId == null) return;
+
+        boolean isOwner = board.getOwnerId().equals(assigneeId);
+        boolean isCollaborator = board.getCollaboratorIds().contains(assigneeId);
+
+        if (!isOwner && !isCollaborator) {
+            throw new BoardServiceException(ExceptionMessage.FORBIDDEN);
+        }
     }
 }

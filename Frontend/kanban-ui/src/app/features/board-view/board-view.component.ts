@@ -303,8 +303,8 @@ export class BoardViewComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.message.success('Task added');
+          this.taskModalLoading = false;
           this.closeTaskModal();
-          this.activeColumnId = null;
           this.changeDetector.detectChanges();
         },
         error: err => {
@@ -379,7 +379,7 @@ export class BoardViewComponent implements OnInit, OnDestroy {
   }
 
   assigneeNickname(userId: number): string {
-    return this.collaborators().find(u => u.id === userId)?.nickname ?? '?';
+    return this.allBoardUsers().find(u => u.id === userId)?.nickname ?? '?';
   }
 
   isOverdue(deadline: string | null): boolean {
