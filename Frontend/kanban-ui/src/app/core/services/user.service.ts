@@ -10,7 +10,7 @@ export class UserService {
   private url = `${environment.apiUrl}/users`;
 
   search(query: string, excludeId: number) {
-    return this.http.get<User[]>(`${environment.apiUrl}/search`, {
+    return this.http.get<User[]>(`${this.url}/search`, {
       params: { query, excludeId }
     });
   }
@@ -18,6 +18,6 @@ export class UserService {
   getByIds(ids: number[]) {
     const params = new URLSearchParams();
     ids.forEach(id => params.append('ids', id.toString()));
-    return this.http.get<User[]>(`${environment.apiUrl}/users?${params.toString()}`);
+    return this.http.get<User[]>(`${this.url}?${params.toString()}`);
   }
 }

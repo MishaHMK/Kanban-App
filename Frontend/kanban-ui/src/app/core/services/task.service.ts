@@ -92,6 +92,6 @@ export class TaskService {
     if (params.deadlineTo)
       httpParams = httpParams.set('deadlineTo', params.deadlineTo.toISOString());
 
-    return this.http.get<Task[]>(`${environment.apiUrl}/task/search`, { params: httpParams });
+    return this.http.get<Task[]>(`${this.url}/search`, { params: httpParams });
   }
 }
