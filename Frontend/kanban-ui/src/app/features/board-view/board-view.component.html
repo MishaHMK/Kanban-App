@@ -34,6 +34,8 @@
           nzType="primary"
           (click)="openColumnModal()"
           [disabled]="(board()?.columns?.length ?? 0) >= 5"
+          nz-tooltip
+          [nzTooltipTitle]="(board()?.columns?.length ?? 0) >= 5 ? 'Maximum of 5 columns per board' : ''"
         >
           <span nz-icon nzType="plus"></span>
           Add column

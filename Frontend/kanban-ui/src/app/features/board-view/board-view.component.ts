@@ -45,6 +45,7 @@ import { TaskDetailsComponent } from '../task-details/task-details.component';
 import { debounceTime, Subject } from 'rxjs';
 import { DateTimePickerComponent } from '../../shared/components/date-time-picker/date-time-picker.component';
 import { AssigneePickerComponent } from '../../shared/components/assignee-picker/assignee-picker.component';
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 
 @Component({
   selector: 'app-board-view',
@@ -56,6 +57,7 @@ import { AssigneePickerComponent } from '../../shared/components/assignee-picker
     NzModalModule,
     NzFormModule,
     NzInputModule,
+    NzTooltipModule,
     NzSelectModule,
     NzTagModule,
     NzSpinModule,
@@ -301,8 +303,8 @@ export class BoardViewComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.message.success('Task added');
-          this.taskModalLoading = false;
           this.closeTaskModal();
+          this.activeColumnId = null;
           this.changeDetector.detectChanges();
         },
         error: err => {
