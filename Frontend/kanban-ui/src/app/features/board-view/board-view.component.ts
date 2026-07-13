@@ -44,6 +44,7 @@ import { TaskFormComponent } from '../../shared/components/task-form/task-form.c
 import { TaskDetailsComponent } from '../task-details/task-details.component';
 import { debounceTime, Subject } from 'rxjs';
 import { DateTimePickerComponent } from '../../shared/components/date-time-picker/date-time-picker.component';
+import { AssigneePickerComponent } from '../../shared/components/assignee-picker/assignee-picker.component';
 
 @Component({
   selector: 'app-board-view',
@@ -66,7 +67,8 @@ import { DateTimePickerComponent } from '../../shared/components/date-time-picke
     UserSearchComponent,
     TaskFormComponent,
     TaskDetailsComponent,
-    DateTimePickerComponent
+    DateTimePickerComponent,
+    AssigneePickerComponent
   ],
   templateUrl: './board-view.component.html',
   styleUrl: './board-view.component.scss'

@@ -309,36 +309,42 @@
       <nz-form-item>
         <nz-form-label>
           Assignee
+          <button
+            nz-button
+            nzType="text"
+            nzSize="default"
+            type="button"
+            class="clear-field-btn"
+            (click)="filterForm.patchValue({ assigneeId: null })">
+          </button>
         </nz-form-label>
         <nz-form-control>
-          <nz-select
-            formControlName="assigneeId"
-            nzAllowClear
-            nzPlaceHolder="Any"
-            class="filter-select"
-          >
-            @for (member of allBoardUsers(); track member.id) {
-              <nz-option [nzValue]="member.id" [nzLabel]="member.nickname"></nz-option>
-            }
-          </nz-select>
+          <app-assignee-picker
+            [members]="allBoardUsers()"
+            [selectedId]="filterForm.get('assigneeId')?.value"
+            (assigneeChange)="filterForm.patchValue({ assigneeId: $event })"
+          />
         </nz-form-control>
       </nz-form-item>
-
       <nz-form-item>
         <nz-form-label>
           Reporter
+          <button
+            nz-button
+            nzType="text"
+            nzSize="default"
+            type="button"
+            class="clear-field-btn"
+            (click)="filterForm.patchValue({ reporterId: null })"
+          >
+          </button>
         </nz-form-label>
         <nz-form-control>
-          <nz-select
-            formControlName="reporterId"
-            nzAllowClear
-            nzPlaceHolder="Any"
-            class="filter-select"
-          >
-            @for (member of allBoardUsers(); track member.id) {
-              <nz-option [nzValue]="member.id" [nzLabel]="member.nickname"></nz-option>
-            }
-          </nz-select>
+          <app-assignee-picker
+            [members]="allBoardUsers()"
+            [selectedId]="filterForm.get('reporterId')?.value"
+            (assigneeChange)="filterForm.patchValue({ reporterId: $event })"
+          />
         </nz-form-control>
       </nz-form-item>
 
@@ -357,13 +363,13 @@
 
       <nz-form-item>
         <nz-form-label>
-          Created to
+          Created before
         </nz-form-label>
         <nz-form-control>
           <app-date-time-picker
             [value]="filterForm.get('createdTo')?.value"
             (valueChange)="filterForm.patchValue({ createdTo: $event })"
-            placeholder="To"
+            placeholder="Before"
           />
         </nz-form-control>
       </nz-form-item>
@@ -383,18 +389,18 @@
 
       <nz-form-item>
         <nz-form-label>
-          Deadline to
+          Deadline until
         </nz-form-label>
         <nz-form-control>
           <app-date-time-picker
             [value]="filterForm.get('deadlineTo')?.value"
             (valueChange)="filterForm.patchValue({ deadlineTo: $event })"
-            placeholder="To"
+            placeholder="Until"
           />
         </nz-form-control>
       </nz-form-item>
 
-      <button nz-button (click)="clearFilters()" type="button">Clear all</button>
+      <button nz-button (click)="clearFilters()" type="button" class="clear-all-btn">Clear all</button>
     </form>
   </ng-container>
 </nz-modal>

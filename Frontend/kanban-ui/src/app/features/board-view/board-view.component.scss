@@ -322,3 +322,16 @@
 .filter-select {
   width: 100%;
 }
+
+.clear-all-btn {
+  width: 100%;
+  margin-top: $space-md;
+  color: $color-error;
+  border-color: $color-error;
+
+  &:hover {
+    background: rgba($color-error, 0.05);
+    border-color: $color-error;
+    color: $color-error;
+  }
+}

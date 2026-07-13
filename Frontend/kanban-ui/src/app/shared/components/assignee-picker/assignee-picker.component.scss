@@ -75,3 +75,14 @@
   letter-spacing: 0.5px;
   vertical-align: middle;
 }
+
+.assignee-menu {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.ant-dropdown-menu {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
