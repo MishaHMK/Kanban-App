@@ -13,6 +13,7 @@
   height: 100%;
   padding: $space-xl $space-2xl;
   box-sizing: border-box;
+  position: relative;
 }
 
 .board-header {
@@ -33,7 +34,7 @@
     font-weight: $font-weight-semibold;
   }
 
-  button:last-child {
+  .header-actions {
     margin-left: auto;
   }
 }
@@ -47,9 +48,12 @@
   padding-bottom: $space-lg;
   align-items: flex-start;
   height: 100%;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 
   &::-webkit-scrollbar {
-    height: 6px;
+    height: 10px;
   }
   &::-webkit-scrollbar-track {
     background: transparent;
@@ -57,6 +61,12 @@
   &::-webkit-scrollbar-thumb {
     background: $color-border-dark;
     border-radius: $radius-sm;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: $color-text-tertiary;
+    background-clip: padding-box;
   }
 }
 
@@ -95,12 +105,29 @@
 
   .task-count {
     font-size: $font-size-sm;
-    color: $color-text-disabled;
+    font-weight: $font-weight-medium;
+    color: $color-text-secondary;
+    background: $color-bg-hover;
+    padding: 1px $space-sm;
+    border-radius: 10px;
+    transition:
+      color $transition-fast,
+      background $transition-fast;
+
+    &.near-full {
+      color: darken($color-warning, 12%);
+      background: rgba($color-warning, 0.14);
+    }
+
+    &.full {
+      color: $color-error;
+      background: rgba($color-error, 0.14);
+    }
   }
 }
 
 .tasks-list {
-  padding: $space-md $space-md $space-xs;
+  padding: $space-md;
   display: flex;
   flex-direction: column;
   gap: $space-sm;
@@ -117,13 +144,13 @@
 }
 
 .add-task-btn {
-  margin: $space-xs $space-md $space-md;
   border-style: dashed;
   color: $color-text-tertiary;
   flex-shrink: 0;
   font-size: $font-size-sm;
   height: 32px;
-  width: 255px;
+  width: calc(100% - #{$space-md} * 2);
+  margin: 0 $space-md $space-md;
 }
 
 .task-card {
@@ -134,12 +161,14 @@
   cursor: pointer;
   transition:
     border-color $transition-fast,
-    box-shadow $transition-fast;
+    box-shadow $transition-fast,
+    transform $transition-fast;
   flex-shrink: 0;
 
   &:hover {
     border-color: #1677ff40;
     box-shadow: $shadow-md;
+    transform: translateY(-1px);
   }
 
   .task-title {
@@ -147,6 +176,7 @@
     font-weight: $font-weight-medium;
     margin-bottom: $space-xs + 2px;
     color: $color-text;
+    overflow-wrap: anywhere;
   }
 
   .task-desc {
@@ -180,7 +210,22 @@
 
   &.overdue {
     color: $color-overdue;
+    font-weight: $font-weight-semibold;
+    background: rgba($color-overdue, 0.1);
+    padding: 1px 6px;
+    border-radius: $radius-sm;
   }
+}
+
+.empty-column-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  color: $color-text-disabled;
+  font-size: $font-size-sm;
+  border: 1px dashed $color-border;
+  border-radius: $radius-md;
 }
 
 .task-footer {
@@ -207,7 +252,7 @@
   border-radius: $radius-md;
   padding: $space-md;
   box-shadow: $shadow-lg;
-  width: 256px;
+  width: $column-width - $space-md * 2;
 
   .task-title {
     font-size: $font-size-md;
@@ -319,6 +364,116 @@
   flex-shrink: 0;
 }
 
+.collaborators-btn {
+  display: flex;
+  align-items: center;
+  gap: $space-xs;
+  height: 40px;
+  padding: 0 $space-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-bg-white;
+  color: $color-text-secondary;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    border-color $transition-fast,
+    box-shadow $transition-fast;
+
+  &:hover {
+    border-color: $color-primary;
+    box-shadow: $shadow-sm;
+  }
+
+  .anticon {
+    font-size: $font-size-lg;
+  }
+
+  .collab-label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+  }
+
+  .collab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: $color-primary-light;
+    color: $color-primary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.collaborators-fab {
+  position: fixed;
+  right: $space-2xl;
+  bottom: $space-2xl;
+  z-index: $z-modal - 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-xs;
+  height: 52px;
+  padding: 0 $space-lg;
+  border: 1px solid $color-border;
+  border-radius: 26px;
+  background: $color-bg-white;
+  color: $color-text-secondary;
+  cursor: pointer;
+  box-shadow: $shadow-lg;
+
+  .anticon {
+    font-size: $font-size-xl;
+  }
+
+  .collab-fab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: $color-primary-light;
+    color: $color-primary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+  }
+
+  &:hover {
+    border-color: $color-primary;
+  }
+}
+
+.add-column-fab {
+  position: fixed;
+  left: $space-2xl;
+  bottom: $space-2xl;
+  z-index: $z-modal - 1;
+  width: 52px;
+  height: 52px;
+  box-shadow:
+    0 0 0 6px $color-bg-white,
+    $shadow-lg;
+
+  &:hover,
+  &:focus,
+  &:active {
+    box-shadow:
+      0 0 0 6px $color-bg-white,
+      $shadow-lg;
+  }
+
+  ::ng-deep .anticon {
+    font-size: $font-size-xl;
+  }
+}
+
 .filter-select {
   width: 100%;
 }
@@ -326,12 +481,34 @@
 .clear-all-btn {
   width: 100%;
   margin-top: $space-md;
-  color: $color-error;
-  border-color: $color-error;
+  background: rgba($color-error, 0.06) !important;
 
   &:hover {
-    background: rgba($color-error, 0.05);
-    border-color: $color-error;
-    color: $color-error;
+    background: rgba($color-error, 0.12) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .board-page {
+    padding: $space-md;
+  }
+
+  .board-header {
+    gap: $space-md;
+    margin-bottom: $space-md;
+
+    .board-title {
+      font-size: $font-size-lg;
+    }
+  }
+
+  .add-column-fab {
+    left: $space-lg;
+    bottom: $space-lg;
+  }
+
+  .collaborators-fab {
+    right: $space-lg;
+    bottom: $space-lg;
   }
 }

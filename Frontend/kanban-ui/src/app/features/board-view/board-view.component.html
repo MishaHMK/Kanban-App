@@ -6,39 +6,20 @@
     </button>
     <h2 class="board-title">{{ board()?.name }}</h2>
 
-    <nz-input-group [nzPrefix]="searchIcon" class="task-search">
-      <input
-        nz-input
-        placeholder="Search tasks..."
-        [value]="searchQuery"
-        (input)="onSearchInput($any($event.target).value)"
-      />
-    </nz-input-group>
-    <ng-template #searchIcon>
-      <span nz-icon nzType="search"></span>
-    </ng-template>
-
-    <button nz-button (click)="toggleFilterPanel()">
-      <span nz-icon nzType="filter"></span>
-      Filters
-    </button>
-
     <div class="header-actions">
       @if (isOwner()) {
-        <button nz-button (click)="openCollaboratorModal()">
-          <span nz-icon nzType="team"></span>
-          Collaborators
-        </button>
         <button
-          nz-button
-          nzType="primary"
-          (click)="openColumnModal()"
-          [disabled]="(board()?.columns?.length ?? 0) >= 5"
+          type="button"
+          class="collaborators-btn"
+          (click)="openCollaboratorModal()"
           nz-tooltip
-          [nzTooltipTitle]="(board()?.columns?.length ?? 0) >= 5 ? 'Maximum of 5 columns per board' : ''"
+          nzTooltipTitle="Manage collaborators"
         >
-          <span nz-icon nzType="plus"></span>
-          Add column
+          <span nz-icon nzType="team"></span>
+          <span class="collab-label">Collaborators</span>
+          @if (collaborators().length > 0) {
+            <span class="collab-count">{{ collaborators().length }}</span>
+          }
         </button>
       }
     </div>
@@ -51,9 +32,10 @@
       cdkDropListOrientation="horizontal"
       [cdkDropListData]="board()?.columns ?? []"
       (cdkDropListDropped)="dropColumn($event)"
+      (wheel)="onColumnsWheel($event)"
     >
       @for (column of board()?.columns ?? []; track column.id) {
-        <div class="column" cdkDrag>
+        <div class="column" cdkDrag [cdkDragStartDelay]="{ touch: 200, mouse: 0 }">
           <div class="column-drag-placeholder" *cdkDragPlaceholder></div>
 
           <div class="column-header">
@@ -74,7 +56,13 @@
               </span>
             }
             <div class="column-actions">
-              <span class="task-count">{{ column.tasks.length }}/10</span>
+              <span
+                class="task-count"
+                [class.near-full]="column.tasks.length >= 8 && column.tasks.length < 10"
+                [class.full]="column.tasks.length >= 10"
+              >
+                {{ column.tasks.length }}/10
+              </span>
               @if (isOwner()) {
                 <button
                   nz-button
@@ -101,7 +89,13 @@
           >
             @for (task of column.tasks; track task.id) {
               @if (taskMatchesFilter(task)) {
-                <div class="task-card" cdkDrag [cdkDragData]="task" (click)="openTaskDetails(task)">
+                <div
+                  class="task-card"
+                  cdkDrag
+                  [cdkDragData]="task"
+                  [cdkDragStartDelay]="{ touch: 200, mouse: 0 }"
+                  (click)="openTaskDetails(task)"
+                >
                   <div class="task-drag-placeholder" *cdkDragPlaceholder></div>
 
                   <div class="task-drag-preview" *cdkDragPreview>
@@ -158,6 +152,10 @@
                 </div>
               }
             }
+
+            @if (column.tasks.length === 0) {
+              <div class="empty-column-hint">Drop tasks here</div>
+            }
           </div>
 
           <button
@@ -182,6 +180,39 @@
       }
     </div>
   </nz-spin>
+
+  @if (isOwner()) {
+    <button
+      nz-button
+      nzType="primary"
+      nzShape="circle"
+      nzSize="large"
+      class="add-column-fab"
+      (click)="openColumnModal()"
+      [disabled]="(board()?.columns?.length ?? 0) >= 5"
+      nz-tooltip
+      nzTooltipPlacement="right"
+      [nzTooltipTitle]="(board()?.columns?.length ?? 0) >= 5 ? 'Maximum of 5 columns per board' : 'Add column'"
+    >
+      <span nz-icon nzType="plus"></span>
+    </button>
+  }
+
+  @if (isOwner() && scrolled()) {
+    <button
+      type="button"
+      class="collaborators-fab"
+      (click)="openCollaboratorModal()"
+      nz-tooltip
+      nzTooltipPlacement="left"
+      nzTooltipTitle="Collaborators"
+    >
+      <span nz-icon nzType="team"></span>
+      @if (collaborators().length > 0) {
+        <span class="collab-fab-count">{{ collaborators().length }}</span>
+      }
+    </button>
+  }
 </div>
 
 <nz-modal
@@ -203,9 +234,11 @@
 </nz-modal>
 
 <nz-modal
-  [(nzVisible)]="taskModalVisible"
+  [nzVisible]="taskModalVisible()"
+  (nzVisibleChange)="taskModalVisible.set($event)"
   nzTitle="Add task"
-  [nzOkLoading]="taskModalLoading"
+  [nzStyle]="{ top: '24px' }"
+  [nzOkLoading]="taskModalLoading()"
   (nzOnOk)="addTask()"
   (nzOnCancel)="closeTaskModal()"
 >
@@ -217,6 +250,7 @@
 <nz-modal
   [(nzVisible)]="editTaskModalVisible"
   nzTitle="Edit task"
+  [nzStyle]="{ top: '24px' }"
   (nzOnOk)="saveEditTask()"
   (nzOnCancel)="editTaskModalVisible = false"
 >
@@ -402,7 +436,9 @@
         </nz-form-control>
       </nz-form-item>
 
-      <button nz-button (click)="clearFilters()" type="button" class="clear-all-btn">Clear all</button>
+      <button nz-button nzDanger (click)="clearFilters()" type="button" class="clear-all-btn">
+        Clear all
+      </button>
     </form>
   </ng-container>
 </nz-modal>

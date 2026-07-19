@@ -74,8 +74,14 @@
 
 .filter-btn {
   flex-shrink: 0;
+  background: transparent !important;
   color: $color-header-text !important;
   border-color: rgba(255, 255, 255, 0.3) !important;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+  }
 }
 
 .app-content {
@@ -111,6 +117,12 @@
     color: $color-header-text !important;
     fill: $color-header-text !important;
   }
+
+  .header-search .ant-input-prefix .anticon,
+  .header-search .ant-input-prefix .anticon svg {
+    color: $color-text-tertiary !important;
+    fill: $color-text-tertiary !important;
+  }
 }
 
 ::ng-deep .ant-modal-header {
@@ -136,6 +148,30 @@
   border-top: none;
   font-size: $font-size-sm;
   margin-top: $space-2xl * 1.5;
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 $space-md;
+    gap: $space-sm;
+  }
+
+  .logo {
+    font-size: 0;
+    gap: 0;
+  }
+
+  .username {
+    display: none;
+  }
+
+  .task-search {
+    min-width: 0;
+  }
+
+  .filter-label {
+    display: none;
+  }
 }
 
 ::ng-deep .app-footer {

@@ -21,6 +21,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { BoardService } from '../../core/services/board.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Board } from '../../core/models/board.model';
+import { resolveErrorMessage } from '../../core/constants/error-messages';
 
 @Component({
   selector: 'app-boards',
@@ -51,8 +52,8 @@ export class BoardsComponent implements OnInit {
 
   boards = signal<Board[]>([]);
   loading = signal(true);
-  modalVisible = false;
-  modalLoading = false;
+  modalVisible = signal(false);
+  modalLoading = signal(false);
   form: FormGroup;
   editingBoard: Board | null = null;
   editBoardForm: FormGroup;
@@ -82,8 +83,8 @@ export class BoardsComponent implements OnInit {
         this.boards.set(boards);
         this.loading.set(false);
       },
-      error: () => {
-        this.message.error('Failed to load boards');
+      error: err => {
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to load boards'));
         this.loading.set(false);
       }
     });
@@ -94,27 +95,27 @@ export class BoardsComponent implements OnInit {
   }
 
   openModal() {
-    this.modalVisible = true;
+    this.modalVisible.set(true);
   }
 
   closeModal() {
-    this.modalVisible = false;
+    this.modalVisible.set(false);
     this.form.reset();
   }
 
   createBoard() {
     if (this.form.invalid) return;
-    this.modalLoading = true;
+    this.modalLoading.set(true);
     this.boardService.create(this.form.value.name).subscribe({
       next: board => {
         this.boards.update(newBoard => [...newBoard, board]);
         this.message.success('Board created!');
-        this.modalLoading = false;
+        this.modalLoading.set(false);
         this.closeModal();
       },
-      error: () => {
-        this.message.error('Failed to create board');
-        this.modalLoading = false;
+      error: err => {
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to create board'));
+        this.modalLoading.set(false);
       }
     });
   }
@@ -125,7 +126,8 @@ export class BoardsComponent implements OnInit {
         this.boards.update(b => b.filter(board => board.id !== id));
         this.message.success('Board deleted');
       },
-      error: () => this.message.error('Failed to delete board')
+      error: err =>
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to delete board'))
     });
   }
 
@@ -153,7 +155,8 @@ export class BoardsComponent implements OnInit {
         this.message.success('Board renamed');
         this.closeEditBoard();
       },
-      error: () => this.message.error('Failed to rename board')
+      error: err =>
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to rename board'))
     });
   }
 }

@@ -47,21 +47,6 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{taskId}/assign")
-    public ResponseEntity<TaskDto> assignTask(
-            @PathVariable Long taskId,
-            @Valid @RequestBody AssignTaskDto request,
-            @RequestHeader("X-User-Id") Long userId) {
-        return ResponseEntity.ok(taskService.assignTask(taskId, request, userId));
-    }
-
-    @PatchMapping("/{taskId}/unassign")
-    public ResponseEntity<TaskDto> unassignTask(
-            @PathVariable Long taskId,
-            @RequestHeader("X-User-Id") Long userId) {
-        return ResponseEntity.ok(taskService.unassignTask(taskId, userId));
-    }
-
     @GetMapping("/search")
     public ResponseEntity<List<TaskDto>> searchTasks(
             @Valid TaskSearchDto request,

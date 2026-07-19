@@ -7,6 +7,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from '../../core/services/auth.service';
+import { resolveErrorMessage } from '../../core/constants/error-messages';
 
 @Component({
   selector: 'app-register',
@@ -38,7 +39,7 @@ export class RegisterComponent {
       {
         email: ['', [Validators.required, Validators.email]],
         nickname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(25)]],
-        password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(25)]],
+        password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(50)]],
         repeatPassword: ['', [Validators.required]]
       },
       { validators: this.passwordMatchValidator }
@@ -61,7 +62,7 @@ export class RegisterComponent {
         this.router.navigate(['/login']);
       },
       error: err => {
-        this.message.error(err.error?.message ?? 'Registration failed');
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Registration failed'));
         this.loading = false;
         this.cdr.detectChanges();
       }
@@ -69,8 +70,17 @@ export class RegisterComponent {
   }
 
   passwordMatchValidator(form: FormGroup) {
-    const p1 = form.get('password')?.value;
-    const p2 = form.get('repeatPassword')?.value;
-    return p1 === p2 ? null : { passwordMismatch: true };
+    const password = form.get('password')?.value;
+    const repeat = form.get('repeatPassword');
+
+    if (repeat?.value && password !== repeat.value) {
+      repeat.setErrors({ ...repeat.errors, passwordMismatch: true });
+    } else if (repeat?.errors?.['passwordMismatch']) {
+      const errors = { ...repeat.errors };
+      delete errors['passwordMismatch'];
+      repeat.setErrors(Object.keys(errors).length ? errors : null);
+    }
+
+    return null;
   }
 }

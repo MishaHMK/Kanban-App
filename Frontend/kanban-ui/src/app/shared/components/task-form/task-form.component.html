@@ -1,9 +1,16 @@
 <form nz-form [formGroup]="form()" nzLayout="vertical">
   <nz-form-item>
     <nz-form-label>Title</nz-form-label>
-    <nz-form-control nzErrorTip="Required">
+    <nz-form-control [nzErrorTip]="titleErrorTip">
       <input nz-input formControlName="title" placeholder="Task title" />
     </nz-form-control>
+    <ng-template #titleErrorTip>
+      @if (form().get('title')?.errors?.['maxlength']) {
+        Title must be at most 255 characters
+      } @else {
+        Title is required
+      }
+    </ng-template>
   </nz-form-item>
   <nz-form-item>
     <nz-form-label>Description</nz-form-label>

@@ -6,6 +6,7 @@ import {
   ViewChild,
   ElementRef,
   ChangeDetectorRef,
+  HostListener,
   inject
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -36,6 +37,8 @@ import { Task } from '../../core/models/task.model';
 import { Column } from '../../core/models/column.model';
 import { User } from '../../core/models/user.model';
 import { UserService } from '../../core/services/user.service';
+import { HeaderActionsService } from '../../core/services/header-actions.service';
+import { resolveErrorMessage } from '../../core/constants/error-messages';
 import { UserSearchComponent } from '../user-search.component/user-search.component';
 import { AuthService } from '../../core/services/auth.service';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -87,6 +90,7 @@ export class BoardViewComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly message = inject(NzMessageService);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly headerActions = inject(HeaderActionsService);
 
   board = signal<Board | null>(null);
   loading = signal(true);
@@ -96,8 +100,8 @@ export class BoardViewComponent implements OnInit, OnDestroy {
   editingColumnId: number | null = null;
   editingColumnName = '';
 
-  taskModalVisible = false;
-  taskModalLoading = false;
+  taskModalVisible = signal(false);
+  taskModalLoading = signal(false);
   activeColumnId: number | null = null;
   taskForm: FormGroup;
 
@@ -123,6 +127,13 @@ export class BoardViewComponent implements OnInit, OnDestroy {
   filterForm: FormGroup;
   matchingTaskIds = signal<Set<number> | null>(null);
 
+  scrolled = signal(false);
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    this.scrolled.set(window.scrollY > 30);
+  }
+
   private searchSubject = new Subject<void>();
 
   constructor() {
@@ -131,7 +142,7 @@ export class BoardViewComponent implements OnInit, OnDestroy {
     });
 
     this.taskForm = this.formBuilder.group({
-      title: ['', [Validators.required]],
+      title: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(255)]],
       description: [''],
       priority: ['MEDIUM', [Validators.required]],
       deadlineAt: [null],
@@ -139,7 +150,7 @@ export class BoardViewComponent implements OnInit, OnDestroy {
     });
 
     this.editTaskForm = this.formBuilder.group({
-      title: ['', [Validators.required]],
+      title: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(255)]],
       description: [''],
       priority: ['MEDIUM', [Validators.required]],
       deadlineAt: [null],
@@ -162,10 +173,15 @@ export class BoardViewComponent implements OnInit, OnDestroy {
     this.loadBoard();
     this.connectWebSocket();
     this.setupSearch();
+    this.headerActions.show(
+      query => this.onSearchInput(query),
+      () => this.toggleFilterPanel()
+    );
   }
 
   ngOnDestroy() {
     this.wsService.disconnect();
+    this.headerActions.hide();
   }
 
   loadBoard() {
@@ -177,8 +193,8 @@ export class BoardViewComponent implements OnInit, OnDestroy {
         this.loadCollaborators(board.collaboratorIds);
         this.loadOwner(board.ownerId);
       },
-      error: () => {
-        this.message.error('Failed to load board');
+      error: err => {
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to load board'));
         this.loading.set(false);
       }
     });
@@ -216,7 +232,11 @@ export class BoardViewComponent implements OnInit, OnDestroy {
   }
 
   addColumn() {
-    if (this.columnForm.invalid) return;
+    if (this.columnForm.invalid) {
+      this.markFormDirty(this.columnForm);
+      return;
+    }
+
     const columns = this.board()?.columns ?? [];
     const position = columns.length + 1;
 
@@ -226,7 +246,8 @@ export class BoardViewComponent implements OnInit, OnDestroy {
         this.message.success('Column added');
         this.closeColumnModal();
       },
-      error: err => this.message.error(err.error?.message ?? 'Failed to add column')
+      error: err =>
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to add column'))
     });
   }
 
@@ -236,7 +257,8 @@ export class BoardViewComponent implements OnInit, OnDestroy {
         this.board.set(board);
         this.message.success('Column deleted');
       },
-      error: () => this.message.error('Failed to delete column')
+      error: err =>
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to delete column'))
     });
   }
 
@@ -273,25 +295,36 @@ export class BoardViewComponent implements OnInit, OnDestroy {
         });
         this.message.success('Column renamed');
       },
-      error: () => this.message.error('Failed to rename column')
+      error: err =>
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to rename column'))
     });
     this.editingColumnId = null;
   }
 
   openTaskModal(columnId: number) {
     this.activeColumnId = columnId;
-    this.taskForm.reset({ priority: 'MEDIUM', deadlineAt: null, assigneeId: null });
-    this.taskModalVisible = true;
+    this.taskForm.reset({
+      priority: 'MEDIUM',
+      deadlineAt: null,
+      assigneeId: this.authService.currentUser()?.id ?? null
+    });
+    this.taskModalVisible.set(true);
   }
 
   closeTaskModal() {
-    this.taskModalVisible = false;
+    this.taskModalVisible.set(false);
     this.activeColumnId = null;
   }
 
   addTask() {
-    if (this.taskForm.invalid || !this.activeColumnId || this.taskModalLoading) return;
-    this.taskModalLoading = true;
+    if (!this.activeColumnId || this.taskModalLoading()) return;
+
+    if (this.taskForm.invalid) {
+      this.markFormDirty(this.taskForm);
+      return;
+    }
+
+    this.taskModalLoading.set(true);
 
     const column = this.board()?.columns.find(column => column.id === this.activeColumnId);
     const position = (column?.tasks.length ?? 0) + 1;
@@ -303,14 +336,12 @@ export class BoardViewComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.message.success('Task added');
-          this.taskModalLoading = false;
+          this.taskModalLoading.set(false);
           this.closeTaskModal();
-          this.changeDetector.detectChanges();
         },
         error: err => {
-          this.message.error(err.error?.message ?? 'Failed to add task');
-          this.taskModalLoading = false;
-          this.changeDetector.detectChanges();
+          this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to add task'));
+          this.taskModalLoading.set(false);
         }
       });
   }
@@ -328,7 +359,13 @@ export class BoardViewComponent implements OnInit, OnDestroy {
   }
 
   saveEditTask() {
-    if (this.editTaskForm.invalid || !this.editingTask) return;
+    if (!this.editingTask) return;
+
+    if (this.editTaskForm.invalid) {
+      this.markFormDirty(this.editTaskForm);
+      return;
+    }
+
     const { title, description, priority, deadlineAt, assigneeId } = this.editTaskForm.value;
 
     this.taskService
@@ -340,7 +377,8 @@ export class BoardViewComponent implements OnInit, OnDestroy {
           this.message.success('Task updated');
           this.editTaskModalVisible = false;
         },
-        error: () => this.message.error('Failed to update task')
+        error: err =>
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to update task'))
       });
   }
 
@@ -359,7 +397,8 @@ export class BoardViewComponent implements OnInit, OnDestroy {
         });
         this.message.success('Task deleted');
       },
-      error: () => this.message.error('Failed to delete task')
+      error: err =>
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to delete task'))
     });
   }
 
@@ -385,6 +424,13 @@ export class BoardViewComponent implements OnInit, OnDestroy {
   isOverdue(deadline: string | null): boolean {
     if (!deadline) return false;
     return new Date(deadline) < new Date();
+  }
+
+  private markFormDirty(form: FormGroup) {
+    Object.values(form.controls).forEach(control => {
+      control.markAsDirty();
+      control.updateValueAndValidity();
+    });
   }
 
   private updateTaskInBoard(updated: Task) {
@@ -437,9 +483,10 @@ export class BoardViewComponent implements OnInit, OnDestroy {
       next: board => {
         this.board.set(board);
         this.loadCollaborators(board.collaboratorIds);
-        this.message.success(`${user.email} added`);
+        this.message.success('Collaborator added');
       },
-      error: () => this.message.error('Failed to add collaborator')
+      error: err =>
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to add collaborator'))
     });
   }
 
@@ -450,7 +497,10 @@ export class BoardViewComponent implements OnInit, OnDestroy {
         this.loadCollaborators(board.collaboratorIds);
         this.message.success('Collaborator removed');
       },
-      error: () => this.message.error('Failed to remove collaborator')
+      error: err =>
+        this.message.error(
+          resolveErrorMessage(err.error?.exceptionMessage, 'Failed to remove collaborator')
+        )
     });
   }
 
@@ -459,7 +509,7 @@ export class BoardViewComponent implements OnInit, OnDestroy {
 
     const columns = this.board()?.columns ?? [];
     const movedColumn = columns[event.previousIndex];
-    const newPosition = event.currentIndex + 1; // backend positions are 1-indexed
+    const newPosition = event.currentIndex + 1;
 
     const snapshot = structuredClone(this.board());
 
@@ -472,9 +522,9 @@ export class BoardViewComponent implements OnInit, OnDestroy {
 
     this.columnService.move(movedColumn.id, newPosition).subscribe({
       next: () => {},
-      error: () => {
+      error: err => {
         if (snapshot) this.board.set(snapshot);
-        this.message.error('Failed to move column');
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to move column'));
       }
     });
   }
@@ -531,17 +581,25 @@ export class BoardViewComponent implements OnInit, OnDestroy {
           this.board.set(this.boardSnapshot);
           this.boardSnapshot = null;
         }
-        this.message.error(
-          err.error?.message === 'COLUMN_TASK_LIMIT_REACHED'
-            ? 'Column is full (max 10 tasks)'
-            : 'Failed to move task'
-        );
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Failed to move task'));
       }
     });
   }
 
   getColumnIds(): string[] {
     return this.board()?.columns.map(column => column.id.toString()) ?? [];
+  }
+
+  onColumnsWheel(event: WheelEvent) {
+    const container = event.currentTarget as HTMLElement;
+    if (container.scrollWidth <= container.clientWidth) return;
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+
+    const list = (event.target as HTMLElement).closest('.tasks-list');
+    if (list && list.scrollHeight > list.clientHeight) return;
+
+    container.scrollLeft += event.deltaY;
+    event.preventDefault();
   }
 
   setupSearch() {
@@ -608,7 +666,8 @@ export class BoardViewComponent implements OnInit, OnDestroy {
       })
       .subscribe({
         next: results => this.matchingTaskIds.set(new Set(results.map(t => t.id))),
-        error: () => this.message.error('Search failed')
+        error: err =>
+          this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Search failed'))
       });
   }
 

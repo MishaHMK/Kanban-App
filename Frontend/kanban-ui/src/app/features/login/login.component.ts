@@ -7,6 +7,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from '../../core/services/auth.service';
+import { resolveErrorMessage } from '../../core/constants/error-messages';
 
 @Component({
   selector: 'app-login',
@@ -53,7 +54,7 @@ export class LoginComponent {
     this.auth.login(this.form.value).subscribe({
       next: () => this.router.navigate(['/boards']),
       error: err => {
-        this.message.error(err.error?.message ?? 'Login failed');
+        this.message.error(resolveErrorMessage(err.error?.exceptionMessage, 'Login failed'));
         this.loading = false;
         this.cdr.detectChanges();
       }

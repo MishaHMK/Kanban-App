@@ -1,4 +1,4 @@
-import { Component, input, output, OnInit, inject } from '@angular/core';
+import { Component, input, output, signal, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -28,8 +28,8 @@ export class UserSearchComponent implements OnInit {
 
   private readonly searchSubject = new Subject<string>();
 
-  protected searchResults: User[] = [];
-  protected searchLoading = false;
+  protected searchResults = signal<User[]>([]);
+  protected searchLoading = signal(false);
 
   ngOnInit(): void {
     this.searchSubject
@@ -38,21 +38,21 @@ export class UserSearchComponent implements OnInit {
         distinctUntilChanged(),
         switchMap(query => {
           if (!query.trim()) {
-            this.searchResults = [];
-            this.searchLoading = false;
+            this.searchResults.set([]);
+            this.searchLoading.set(false);
             return [];
           }
-          this.searchLoading = true;
+          this.searchLoading.set(true);
           return this.userService.search(query, this.authService.currentUser()!.id);
         })
       )
       .subscribe({
         next: users => {
-          this.searchResults = users as User[];
-          this.searchLoading = false;
+          this.searchResults.set(users as User[]);
+          this.searchLoading.set(false);
         },
         error: () => {
-          this.searchLoading = false;
+          this.searchLoading.set(false);
         }
       });
   }

@@ -148,35 +148,6 @@ public class TaskService {
         boardSyncHelper.shareFullBoard(boardId);
     }
 
-    @Transactional
-    public TaskDto assignTask(Long taskId, AssignTaskDto request, Long requesterId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new BoardServiceException(ExceptionMessage.NOT_FOUND));
-
-        Board board = task.getColumn().getBoard();
-        boardHelper.verifyAccess(board, requesterId, false);
-
-        validateAssignee(board, request.assigneeId());
-
-        task.setAssigneeId(request.assigneeId());
-        TaskDto result = taskMapper.toDto(taskRepository.save(task));
-        boardSyncHelper.shareFullBoard(board.getId());
-        return result;
-    }
-
-    @Transactional
-    public TaskDto unassignTask(Long taskId, Long requesterId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new BoardServiceException(ExceptionMessage.NOT_FOUND));
-
-        boardHelper.verifyAccess(task.getColumn().getBoard(), requesterId, false);
-
-        task.setAssigneeId(null);
-        TaskDto result = taskMapper.toDto(taskRepository.save(task));
-        boardSyncHelper.shareFullBoard(task.getColumn().getBoard().getId());
-        return result;
-    }
-
     Integer countTasksInColumn(KanbanColumn column) {
         return taskRepository.countByColumnId(column.getId());
     }

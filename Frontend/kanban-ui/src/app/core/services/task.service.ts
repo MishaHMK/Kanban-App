@@ -57,16 +57,6 @@ export class TaskService {
     return this.http.delete<void>(`${this.url}/${taskId}`);
   }
 
-  assign(taskId: number, assigneeId: number) {
-    return this.http.patch<Task>(`${this.url}/${taskId}/assign`, {
-      assigneeId
-    });
-  }
-
-  unassign(taskId: number) {
-    return this.http.patch<Task>(`${this.url}/${taskId}/unassign`, {});
-  }
-
   toLocalDateTimeString(date: Date): string {
     const isoString = date.toISOString();
     const withoutMillisAndZone = isoString.split('.')[0];

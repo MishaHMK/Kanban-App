@@ -7,9 +7,9 @@ import com.kanban.project.errors.UserNotFoundException;
 import com.kanban.project.errors.UserServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -35,22 +35,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponseDto> handleBadRequestException(
-            BadRequestException badRequestException, ServletWebRequest servletWebRequest) {
-        ErrorResponseDto errorResponseDTO =
-                new ErrorResponseDto(
-                        ZonedDateTime.now(),
-                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                        HttpStatus.BAD_REQUEST.value(),
-                        badRequestException.getMessage(),
-                        servletWebRequest.getRequest().getRequestURI());
-
-        log.info(badRequestException.getMessage(), badRequestException);
-
-        return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleNotFoundException(
             UserNotFoundException userNotFoundException, ServletWebRequest servletWebRequest) {
@@ -74,7 +58,7 @@ public class GlobalExceptionHandler {
                 new ErrorResponseDto(
                         ZonedDateTime.now(),
                         HttpStatus.CONFLICT.getReasonPhrase(),
-                        HttpStatus.NOT_FOUND.value(),
+                        HttpStatus.CONFLICT.value(),
                         userServiceException.getMessage(),
                         servletWebRequest.getRequest().getRequestURI());
 
@@ -95,6 +79,27 @@ public class GlobalExceptionHandler {
                         servletWebRequest.getRequest().getRequestURI());
 
         log.info(invalidCredentialsException.getMessage(), invalidCredentialsException);
+
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseDto> handleValidationException(
+            MethodArgumentNotValidException validationException, ServletWebRequest servletWebRequest) {
+        String message = validationException.getBindingResult().getAllErrors().stream()
+                .map(error -> error.getDefaultMessage())
+                .findFirst()
+                .orElse("Validation failed");
+
+        ErrorResponseDto errorResponseDTO =
+                new ErrorResponseDto(
+                        ZonedDateTime.now(),
+                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        message,
+                        servletWebRequest.getRequest().getRequestURI());
+
+        log.info("Validation failed: {}", message);
 
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
     }

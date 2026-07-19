@@ -65,9 +65,10 @@
 </div>
 
 <nz-modal
-  [(nzVisible)]="modalVisible"
+  [nzVisible]="modalVisible()"
+  (nzVisibleChange)="modalVisible.set($event)"
   nzTitle="Create new board"
-  [nzOkLoading]="modalLoading"
+  [nzOkLoading]="modalLoading()"
   (nzOnOk)="createBoard()"
   (nzOnCancel)="closeModal()"
 >

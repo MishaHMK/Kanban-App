@@ -4,10 +4,12 @@ import com.kanban.project.dto.error.ErrorResponseDto;
 import com.kanban.project.error.BoardServiceException;
 import com.kanban.project.error.ForbiddenException;
 import com.kanban.project.error.NotFoundException;
+import com.kanban.project.error.model.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -52,17 +54,47 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BoardServiceException.class)
     public ResponseEntity<ErrorResponseDto> handleException(
-            BoardServiceException eweRuntimeException, ServletWebRequest servletWebRequest) {
+            BoardServiceException boardServiceException, ServletWebRequest servletWebRequest) {
+        HttpStatus status = resolveStatus(boardServiceException.getExceptionCode());
+
         ErrorResponseDto errorResponseDTO =
                 new ErrorResponseDto(
                         ZonedDateTime.now(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        eweRuntimeException.getMessage(),
+                        status.getReasonPhrase(),
+                        status.value(),
+                        boardServiceException.getMessage(),
                         servletWebRequest.getRequest().getRequestURI());
 
-        log.error(eweRuntimeException.getMessage(), eweRuntimeException);
+        if (status.is5xxServerError()) {
+            log.error(boardServiceException.getMessage(), boardServiceException);
+        } else {
+            log.info(boardServiceException.getMessage(), boardServiceException);
+        }
 
-        return new ResponseEntity<>(errorResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponseDTO, status);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseDto> handleValidationException(
+            MethodArgumentNotValidException validationException, ServletWebRequest servletWebRequest) {
+        ErrorResponseDto errorResponseDTO =
+                new ErrorResponseDto(
+                        ZonedDateTime.now(),
+                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        ExceptionMessage.VALIDATION_FAILED.toString(),
+                        servletWebRequest.getRequest().getRequestURI());
+
+        log.info("Validation failed: {}", validationException.getMessage());
+
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    private HttpStatus resolveStatus(ExceptionMessage code) {
+        return switch (code) {
+            case BOARD_COLUMN_LIMIT_REACHED, COLUMN_TASK_LIMIT_REACHED -> HttpStatus.CONFLICT;
+            case SERVICE_UNAVAILABLE -> HttpStatus.SERVICE_UNAVAILABLE;
+            default -> HttpStatus.INTERNAL_SERVER_ERROR;
+        };
     }
 }

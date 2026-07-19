@@ -9,14 +9,14 @@
   <span nz-icon nzType="search"></span>
 </ng-template>
 <ng-template #searchSpin>
-  @if (searchLoading) {
+  @if (searchLoading()) {
     <span nz-icon nzType="loading"></span>
   }
 </ng-template>
 
-@if (searchResults.length > 0) {
+@if (searchResults().length > 0) {
   <div class="search-results">
-    @for (user of searchResults; track user.id) {
+    @for (user of searchResults(); track user.id) {
       <div class="search-result-item">
         <app-avatar [nickname]="user.nickname" />
         <div class="user-info">

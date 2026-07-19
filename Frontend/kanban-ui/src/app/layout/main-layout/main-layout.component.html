@@ -6,6 +6,28 @@
         Kanban
       </span>
     </div>
+
+    @if (headerActions.searchVisible()) {
+      <div class="header-search">
+        <nz-input-group [nzPrefix]="searchIcon" class="task-search">
+          <input
+            nz-input
+            placeholder="Search tasks..."
+            [ngModel]="headerActions.searchQuery()"
+            (ngModelChange)="headerActions.updateQuery($event)"
+          />
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <span nz-icon nzType="search"></span>
+        </ng-template>
+
+        <button nz-button class="filter-btn" (click)="headerActions.triggerFilter()">
+          <span nz-icon nzType="filter"></span>
+          <span class="filter-label">Filters</span>
+        </button>
+      </div>
+    }
+
     <div class="header-right">
       <span class="username">{{ auth.currentUser()?.nickname }}</span>
       <button nz-button nzType="text" (click)="auth.logout()">

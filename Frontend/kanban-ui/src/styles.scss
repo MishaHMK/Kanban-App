@@ -65,6 +65,42 @@ app-root {
   color: $color-error;
 }
 
+.ant-tooltip {
+  --antd-arrow-background-color: #000000;
+  opacity: 1 !important;
+}
+
+.ant-tooltip-inner {
+  display: block !important;
+  background-color: #000000 !important;
+  opacity: 1 !important;
+  border-radius: $radius-md !important;
+  box-shadow: $shadow-md;
+  min-height: auto !important;
+  padding: $space-sm $space-md !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  text-align: center !important;
+}
+
+.ant-tooltip-inner,
+.ant-tooltip-inner * {
+  color: $color-header-text !important;
+}
+
+.ant-tooltip-arrow::before,
+.ant-tooltip-arrow::after,
+.ant-tooltip-arrow-content {
+  background-color: #000000 !important;
+}
+
+@media (max-width: 768px) {
+  .ant-tooltip,
+  .ant-tooltip-inner {
+    max-width: 200px !important;
+  }
+}
+
 .ant-btn-primary {
   background: $color-header-bg !important;
   border-color: $color-header-bg !important;
